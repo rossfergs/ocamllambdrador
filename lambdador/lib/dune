@@ -1,0 +1,4 @@
+(library 
+ (name lambdador)
+ (public_name lambdador)
+ (modules token error lexer parse_node pratt_parser parser))
