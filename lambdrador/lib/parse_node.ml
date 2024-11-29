@@ -10,8 +10,10 @@ type expression_node =
 
 type statement_node = 
 | Let_Node of {namespace: string; block: block_node}
+| Print_Node of expression_node
 | Expr of expression_node
 
-and block_node = {statements: statement_node list; expr:expression_node}
+and block_node = 
+  {parameters: string list; statements: statement_node list; expression:expression_node}
 
 type program_node = statement_node list

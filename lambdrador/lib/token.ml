@@ -2,7 +2,6 @@ type token_type =
   | OPAR         
   | CPAR         
   | ASS          
-  | FOR          
   | ADD          
   | MULT         
   | SUB          
@@ -14,6 +13,13 @@ type token_type =
   | STRING       
   | INTEGER      
   | FLOAT        
-  | NUMBER       
+  | NUMBER     
+[@@deriving show]
 
 type token = {tliteral : string; ttype : token_type}
+
+let print_token t : unit = 
+  let open Format in
+  print_string (t.tliteral ^ "\n");
+  print_endline (show_token_type t.ttype);
+  ()

@@ -2,7 +2,6 @@ type token_type =
     OPAR
   | CPAR
   | ASS
-  | FOR
   | ADD
   | MULT
   | SUB
@@ -15,4 +14,6 @@ type token_type =
   | INTEGER
   | FLOAT
   | NUMBER
+[@@deriving show]
 type token = { tliteral : string; ttype : token_type; }
+val print_token : token -> unit

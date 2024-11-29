@@ -1,6 +1,0 @@
-
-(executable
- (public_name lambdador)
- (name main)
- (modules main)
- (libraries lambdador))

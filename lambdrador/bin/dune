@@ -1,0 +1,7 @@
+
+(executable
+ (public_name lambdrador)
+ (name main)
+ (modules main)
+ (libraries ppx_deriving.std lambdrador)
+ (preprocess (pps ppx_deriving.show)))
