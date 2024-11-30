@@ -1,4 +1,4 @@
-let parse input_string : (Parse_node.program_node) =
+let parse input_string : Parse_node.statement_node list =
 
   let open Parse_node in
 
@@ -34,7 +34,7 @@ let parse input_string : (Parse_node.program_node) =
     let next_statement, next_idx = parse_statement idx in
     match next_statement with
     | Expr e -> 
-      {parameters = input_params; statements = statement_list; expression = e}, next_idx
+      {parameters = input_params; statements = List.rev statement_list; expression = e}, next_idx
     | _ -> 
       parse_block 
         next_idx 
