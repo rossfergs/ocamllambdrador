@@ -10,7 +10,6 @@ let parse input_string : Parse_node.statement_node list =
   in
 
   let rec parse_program idx ~statement_list:statement_list : statement_node list = 
-    let () = print_string "start" in
     let current_token, _ = Lexer.lex input_string idx in
     match current_token.ttype with 
     | Token.EOF -> statement_list

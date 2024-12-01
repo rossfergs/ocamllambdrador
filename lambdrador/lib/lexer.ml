@@ -89,14 +89,15 @@ let collect_keyword_or_namespace input_string idx : (Token.token * int) =
     ~literal:"" in
   match result.tliteral with
   | "let" -> {tliteral = result.tliteral; ttype = Token.ASS}, next_idx
-  | "print" -> {tliteral = result.tliteral; ttype = Token.ASS}, next_idx
+  | "print" -> {tliteral = result.tliteral; ttype = Token.PRINT}, next_idx
   | _ -> result, next_idx
+
 
 (* 
   lexer function, takes in the input code as a string and an integer to
   get the token from, outputs the token and the next index to search from
 *)
-let lex input_string idx: (Token.token * int) =
+let rec lex input_string idx: (Token.token * int) =
   let open Token in
   let next_idx = skip_whitespace input_string idx in
   if next_idx >= String.length input_string 
@@ -105,6 +106,7 @@ let lex input_string idx: (Token.token * int) =
   let ch = String.get input_string next_idx in
   let str_ch = String.make 1 ch in
   match ch with
+  | '@' -> skip_comment input_string (next_idx+1)
   | '0'..'9' -> collect_number input_string next_idx
   | '\'' | '"' -> collect_string input_string next_idx ch
   | 'a' .. 'z' | 'A' .. 'Z' -> collect_keyword_or_namespace input_string next_idx
@@ -118,3 +120,10 @@ let lex input_string idx: (Token.token * int) =
   | '=' -> ({tliteral = str_ch; ttype = EQ}, next_idx + 1)
   | _ -> raise (Error.LexerError (String.cat "unrecognised character " str_ch))
   
+and skip_comment input_string idx =
+  let open Token in
+  if idx >= String.length input_string then {tliteral = "EOF"; ttype = EOF}, idx
+  else 
+    match input_string.[idx] with
+    | '@' -> lex input_string (idx+1)
+    | _ -> skip_comment input_string (idx+1)

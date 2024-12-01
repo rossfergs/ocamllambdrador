@@ -1,5 +1,5 @@
 type token_type =
-    OPAR
+  | OPAR
   | CPAR
   | ASS
   | ADD

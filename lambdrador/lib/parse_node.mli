@@ -18,3 +18,5 @@ and block_node = {
   expression : expression_node;
 }
 type program_node = statement_node list
+val to_int_node : expression_node -> expression_node
+val to_float_node : expression_node -> expression_node
