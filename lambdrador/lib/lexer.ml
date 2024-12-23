@@ -90,6 +90,8 @@ let collect_keyword_or_namespace input_string idx : (Token.token * int) =
   match result.tliteral with
   | "let" -> {tliteral = result.tliteral; ttype = Token.ASS}, next_idx
   | "print" -> {tliteral = result.tliteral; ttype = Token.PRINT}, next_idx
+  | "if" -> {tliteral = result.tliteral; ttype = Token.IF}, next_idx
+  | "then" -> {tliteral = result.tliteral; ttype = Token.THEN}, next_idx
   | _ -> result, next_idx
 
 

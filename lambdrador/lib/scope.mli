@@ -52,4 +52,6 @@ type scope = {
   outer_scope : scope option;
 }
 val bind : Parse_node.block_node String_map.t -> scope -> scope
+val print_scope : scope -> unit
+val empty : scope
 val get : string -> scope -> Parse_node.block_node

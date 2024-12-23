@@ -1,4 +1,6 @@
 type token_type =
+  | IF
+  | THEN
   | OPAR
   | CPAR
   | ASS

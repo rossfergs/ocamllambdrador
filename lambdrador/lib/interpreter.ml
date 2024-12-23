@@ -4,10 +4,9 @@
   pre existing scope, Some scope indicates a preexising scope 's' (in case of REPL)
 *)
 let rec interpret_program input_string current_scope : Scope.scope =
-  let open Scope in
   let parse_tree = Parser.parse input_string in
   let new_scope = match current_scope with
-    | None -> {inner_scope = String_map.empty; outer_scope = None}
+    | None -> Scope.empty
     | Some s -> s 
   in
   let rec aux nodes scope idx =
@@ -41,10 +40,13 @@ and interpret_print node scope =
   in
   scope
 
+(* intepreting a variable node, which is basically a function xd *)
 and interpret_function node scope = 
-  let rec _set_params taken given params =
+  (* function to set the parameters of the function call *)
+  let rec set_params taken given params =
     match taken, given with
-      | [], [] -> params
+      | [], [] -> 
+          params
       | [] , _ :: _ -> 
         raise (Error.InterpreterError "Too many params given")
       | _ :: _, [] -> 
@@ -53,18 +55,32 @@ and interpret_function node scope =
         let block = match given_head with
           | Parse_node.Variable_Node {namespace; parameters} when parameters = [] -> 
             Scope.get namespace scope
-          | n -> Parse_node.{parameters = []; statements = []; expression = n}
-          in
-          _set_params  
-            taken_tail 
-            given_tail 
-            (Scope.String_map.add taken_head block params)
+          | n -> 
+            Parse_node.{parameters = []; statements = []; expression = n}
+        in
+        let open Scope in
+        set_params  
+          taken_tail 
+          given_tail 
+          (bind (String_map.add taken_head block params.inner_scope) params)
   in
-  let _func = match node with
-    | Parse_node.Variable_Node {namespace; _} -> Scope.get namespace scope
-    | _ -> raise (Error.InterpreterError "this shouldnt happen... interpret_function")
+  (* getting the block assocaited with the function namespace and its parameters *)
+  let func, given_params = match node with
+    | Parse_node.Variable_Node {namespace; parameters = params} -> Scope.get namespace scope, params
+    | _ -> raise (Error.InterpreterError "non-namespace expression being interpreted as function")
   in
-  raise (Error.InterpreterError "intepret function needs implemented")
+  let function_scope = set_params func.parameters given_params (Scope.empty) in
+  interpret_block func function_scope
+
+and interpret_block node scope = 
+  let rec interpret_block_impl statements block_scope = match statements with
+    | [] -> block_scope
+    | statement :: remainder -> 
+      let new_scope = interpret_statement statement block_scope in
+    interpret_block_impl remainder new_scope
+    in
+  let new_scope = interpret_block_impl node.statements scope in
+  interpret_expression node.expression new_scope
 
 and interpret_expression node scope =
 
