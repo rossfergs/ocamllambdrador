@@ -26,18 +26,21 @@ let interpret' user_input scope =
 
 (* a function to loop continuously, even when an error is occured *)
 let repl_loop : unit =
-  let repl_scope = 
-    ref (Some Lambdrador.Scope.{inner_scope = String_map.empty; outer_scope = None}) in
-  while true do
+  let repl_scope = ref (Some Lambdrador.Scope.empty) in
+  let repl_looping = ref true in
+  while !repl_looping do
     print_string ">>> ";
-    let user_input = read_line () in
-    print_string "  > ";
-    repl_scope := interpret' user_input !repl_scope;
+    match read_line () with
+      | "EXIT" -> 
+        repl_looping := false;
+      | user_input ->
+        print_string "  > ";
+        repl_scope := interpret' user_input !repl_scope;
+    print_newline ();
   done
 
-let () = 
+let main = 
   if Array.length Sys.argv < 1 then repl_loop else
-
   let argi = ref 0 in
   let argc = Array.length Sys.argv in
   while !argi <= argc do
