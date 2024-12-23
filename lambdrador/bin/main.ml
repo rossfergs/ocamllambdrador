@@ -39,7 +39,7 @@ let repl_loop : unit =
     print_newline ();
   done
 
-let main = 
+let () = 
   if Array.length Sys.argv < 1 then repl_loop else
   let argi = ref 0 in
   let argc = Array.length Sys.argv in
