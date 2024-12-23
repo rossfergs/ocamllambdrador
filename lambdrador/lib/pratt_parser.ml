@@ -28,7 +28,7 @@ let parse_expression input_string start_idx =
         match input_token.ttype with
         | NAMESPACE -> 
             let collected_params, next_idx = collect_parameters start_idx ~parameter_list:[] in
-            Variable_Node {namespace = input_token.tliteral; parameters = collected_params} , next_idx
+            Variable_Node {namespace = input_token.tliteral; parameters = collected_params}, next_idx
         | INTEGER -> 
             Integer_Node (int_of_string input_token.tliteral), start_idx
         | FLOAT -> 
@@ -47,12 +47,18 @@ let parse_expression input_string start_idx =
                 paren_result, next_idx
         | _ -> raise (Error.ParserError "unknown token in expression")
 
-    and led left_node operator start_idx = 
+    and led left_node operator start_idx : (Parse_node.expression_node * int) = 
         let open Token in
         match operator.ttype with
         | ADD -> 
             let right_node, current_idx = parse (get_lbp operator) start_idx in
             Parse_node.Add_Node (left_node, right_node), current_idx
+        | MULT ->
+            let right_node, current_idx = parse (get_lbp operator) start_idx in
+            Parse_node.Mult_Node (left_node, right_node), current_idx
+        | SUB ->
+            let right_node, current_idx = parse (get_lbp operator) start_idx in
+            Parse_node.Sub_Node (left_node, right_node), current_idx
         | _ -> let msg = "Unrecognised operator in expression" ^ operator.tliteral in 
             raise (Error.ParserError msg)
     
