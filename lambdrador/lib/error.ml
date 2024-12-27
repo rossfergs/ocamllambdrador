@@ -1,15 +1,15 @@
-exception LexerError of string
+exception Lexer_Error of string
 
-exception ParserError of string
+exception Parser_Error of string
 
-exception InterpreterError of string
+exception Interpreter_Error of string
 
 let print_error = function
-| LexerError msg -> 
-  print_endline ("Lexer Error: " ^ msg)
-| ParserError msg ->
+| Lexer_Error msg -> 
+  print_endline ("Lexer_ Error: " ^ msg)
+| Parser_Error msg ->
   print_endline ("Parser Error: " ^ msg)
-| InterpreterError msg ->
+| Interpreter_Error msg ->
   print_endline ("Interpreter Error: " ^ msg)
 | _ -> 
-  print_endline ("Unknown Error Type??")
+  print_endline "Unknown Error Type??"

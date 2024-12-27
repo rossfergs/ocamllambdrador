@@ -7,8 +7,8 @@ type scope =
 let rec print_scope scope = 
   String_map.iter (fun k _ -> print_string k; print_string "->";) scope.inner_scope;
   match scope.outer_scope with
-  | None -> ()
-  | Some s -> print_scope s
+    | None -> ()
+    | Some s -> print_scope s
 
 let bind nis cs = 
   { inner_scope = nis; outer_scope = cs.outer_scope }
@@ -20,5 +20,5 @@ let rec get name scope =
     String_map.find name scope.inner_scope
   with Not_found ->
     match scope.outer_scope with
-    | None -> raise (Error.InterpreterError ("Variable " ^ name ^ " not found in scope"))
-    | Some s -> get name s
+      | None -> raise (Error.Interpreter_Error ("Variable " ^ name ^ " not found in scope"))
+      | Some s -> get name s

@@ -4,9 +4,9 @@
 *)
 let rec skip_whitespace input_string idx: int = 
   if idx < String.length input_string then
-  match String.get input_string idx with
-  | ' ' -> skip_whitespace input_string (idx+1)
-  | _ -> idx
+    match String.get input_string idx with
+      | ' ' -> skip_whitespace input_string (idx+1)
+      | _ -> idx
   else idx
 
 (* 
@@ -29,23 +29,51 @@ let rec collect input_string idx token_type char_check end_char ~literal:literal
           ~literal:(literal ^ (String.make 1 ch))
     else
       let open Error in
-      match token_type with
-      | Token.NUMBER -> raise (LexerError "non-numeric character in number literal")
-      | Token.STRING -> raise (LexerError "forbidden character in string")
-      | Token.NAMESPACE -> raise (LexerError "forbidden character in namespace")
-      | _ -> 
-        (* TODO: THIS NEEDS CHANGED TO WORK FOR ALL ERROR MESSAGES *)
-        let msg = 
-          "forbidden character in multi-character string" 
-          ^ (String.make 1 input_string.[idx]) in
-        raise (LexerError msg)
+      let error_msg = match token_type with
+        | Token.NUMBER -> "non-numeric character in number literal '" ^ (String.make 1 ch) ^ "'"
+        | Token.STRING -> "forbidden character in string '" ^ (String.make 1 ch) ^ "'"
+        | Token.NAMESPACE -> "forbidden character in namespace '" ^ (String.make 1 ch) ^ "'"
+        | _ -> "forbidden character in multi-character string '" ^ (String.make 1 ch) ^ "'"
+      in
+        raise (Lexer_Error error_msg)
 
- 
+
+let collect_operator input_string idx : (Token.token * int) =
+  let open Token in
+  let check_char = function
+    | '+' | '-' | '=' | '<' | '>' | '*' | '/' -> true
+    | _ -> false
+  in
+  let check_end ch = not (check_char ch)
+  in
+  let tok, next_idx = collect
+    input_string
+    idx
+    EQ
+    check_char
+    check_end
+    ~literal: ""
+  in
+  let token_class = match tok.tliteral with
+    | "=" -> EQ
+    | "*" -> MULT
+    | "-" -> SUB
+    | "+" -> ADD
+    | "<" -> LESS
+    | "<=" -> LESSEQ
+    | ">" -> GREATER
+    | ">=" -> GREATEREQ
+    | "!=" -> NEQ
+    | _ -> raise (Error.Lexer_Error ("Unrecognised operator " ^ tok.tliteral))
+  in
+  {tliteral = tok.tliteral; ttype = token_class}, next_idx
+  
+
 let collect_number input_string idx : (Token.token * int) =
   let open Token in
-  let check_end c = match c with
-  | ' ' | ')' | ';' | '+' | '=' | '*' | '-' -> true
-  | _ -> false in
+  let check_end = function
+    | ' ' | ')' | ';' | '+' | '=' | '*' | '-' -> true
+    | _ -> false in
   let t, i = collect 
     input_string
     idx
@@ -74,12 +102,14 @@ let collect_string input_string idx qm : (Token.token * int) =
   currently only returns namespace tokens
 *)
 let collect_keyword_or_namespace input_string idx : (Token.token * int) =
-  let valid_character c = match c with
-  | '0' .. '9' | 'a' .. 'z' | 'A' .. 'Z' | '_' -> true
-  | _ -> false in
-  let check_end c = match c with
-  | ' ' | ')' | ';' | '+' | '=' | '*' | '-' -> true
-  | _ -> false in
+  let valid_character = function
+    | '0' .. '9' | 'a' .. 'z' | 'A' .. 'Z' | '_' -> true
+    | _ -> false 
+  in
+  let check_end = function
+    | ' ' | ')' | ';' | '+' | '=' | '*' | '-' -> true
+    | _ -> false 
+  in
   let result, next_idx = collect
     input_string
     idx
@@ -92,8 +122,10 @@ let collect_keyword_or_namespace input_string idx : (Token.token * int) =
   | "print" -> {tliteral = result.tliteral; ttype = Token.PRINT}, next_idx
   | "if" -> {tliteral = result.tliteral; ttype = Token.IF}, next_idx
   | "then" -> {tliteral = result.tliteral; ttype = Token.THEN}, next_idx
+  | "else" -> {tliteral = result.tliteral; ttype = Token.ELSE}, next_idx
+  | "true" -> {tliteral = result.tliteral; ttype = Token.BOOL}, next_idx
+  | "false" -> {tliteral = result.tliteral; ttype = Token.BOOL}, next_idx
   | _ -> result, next_idx
-
 
 (* 
   lexer function, takes in the input code as a string and an integer to
@@ -114,13 +146,10 @@ let rec lex input_string idx: (Token.token * int) =
   | 'a' .. 'z' | 'A' .. 'Z' -> collect_keyword_or_namespace input_string next_idx
   | '(' -> ({tliteral = str_ch; ttype = OPAR}, next_idx + 1)
   | ')' -> ({tliteral = str_ch; ttype = CPAR}, next_idx + 1)
-  | '*' -> ({tliteral = str_ch; ttype = MULT}, next_idx + 1)
-  | '+' -> ({tliteral = str_ch; ttype = ADD}, next_idx + 1)
-  | '-' -> ({tliteral = str_ch; ttype = SUB}, next_idx + 1)
+  | '*' | '+' | '-' | '=' | '<' | '!' | '>' -> collect_operator input_string next_idx
   | ';' -> ({tliteral = str_ch; ttype = DELIM}, next_idx + 1)
   | '\n' -> ({tliteral = str_ch; ttype = EOF}, next_idx + 1)
-  | '=' -> ({tliteral = str_ch; ttype = EQ}, next_idx + 1)
-  | _ -> raise (Error.LexerError (String.cat "unrecognised character " str_ch))
+  | _ -> raise (Error.Lexer_Error (String.cat "unrecognised character " str_ch))
   
 and skip_comment input_string idx =
   let open Token in
