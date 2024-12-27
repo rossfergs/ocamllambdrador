@@ -1,0 +1,12 @@
+let x = 2;
+
+print "x is: ";
+print x;
+print "";
+
+print "x^2 is: ";
+print x * x;
+print "";
+
+print "x given parameters 1 and 2?: ";
+print x 1 2;
