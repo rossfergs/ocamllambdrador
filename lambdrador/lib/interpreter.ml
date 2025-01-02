@@ -24,7 +24,7 @@ let get_binary_result_type l r =
       raise (Error.Interpreter_Error "Unknown expression result")
 
 
-(* 
+(*
   interpret all the statements given to the interpreter
   current_scope is an option of a scope, None indicates no
   pre existing scope, Some scope indicates a preexising scope 's' (in case of REPL)

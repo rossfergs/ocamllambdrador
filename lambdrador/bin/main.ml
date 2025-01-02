@@ -65,7 +65,6 @@ let () =
       argi := argc + 1
     | file_path ->
       let file = read_file file_path in
-      print_endline file;
       let _ = interpret' file (Some (Lambdrador.Scope.empty)) in
       argi := argc + 1
   done

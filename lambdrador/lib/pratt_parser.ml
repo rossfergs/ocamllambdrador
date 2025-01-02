@@ -87,7 +87,7 @@ let parse_expression input_string start_idx =
     let open Token in
     let open Parse_node in
     match current_token.ttype with
-      | OPAR | STRING | INTEGER | FLOAT | NAMESPACE ->
+      | OPAR | STRING | INTEGER | FLOAT | NAMESPACE | BOOL ->
         let p = Variable_Node{namespace = current_token.tliteral; parameters = []} in
         if current_token.ttype == NAMESPACE then
           collect_parameters 
