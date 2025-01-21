@@ -1,5 +1,3 @@
-
-
 let get_type = let open Parse_node in function
   | Float_Node _ -> "Float"
   | Integer_Node _ -> "Int"
