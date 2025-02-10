@@ -2,5 +2,5 @@
  (name lambdrador)
  (public_name lambdrador)
  (modules token error lexer parse_node pratt_parser parser scope interpreter)
- (libraries ppx_deriving.std)
+ (libraries unix ppx_deriving.std)
  (preprocess (pps ppx_deriving.show)))

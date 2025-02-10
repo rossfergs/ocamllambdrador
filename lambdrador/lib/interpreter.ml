@@ -124,6 +124,8 @@ and interpret_equals left_node right_node scope =
   let left_eval = interpret_expression left_node scope in
   let right_eval = interpret_expression right_node scope in
   match get_binary_result_type left_eval right_eval with
+    | Bool_Node l, Bool_Node r ->
+      Bool_Node (l = r)
     | Integer_Node l, Integer_Node r ->
       Bool_Node (l = r)
     | Float_Node l, Float_Node r ->
@@ -159,6 +161,8 @@ and interpret_less_than left_node right_node scope =
   let left_eval = interpret_expression left_node scope in
   let right_eval = interpret_expression right_node scope in
   match get_binary_result_type left_eval right_eval with
+    | Bool_Node l, Bool_Node r ->
+      Bool_Node (l < r)
   | Integer_Node l, Integer_Node r ->
       Bool_Node (l < r)
   | Float_Node l, Float_Node r ->
@@ -173,6 +177,8 @@ and interpret_greater_than_or_equal_to left_node right_node scope =
   let left_eval = interpret_expression left_node scope in
   let right_eval = interpret_expression right_node scope in
   match get_binary_result_type left_eval right_eval with
+  | Bool_Node l, Bool_Node r ->
+      Bool_Node (l >= r)
   | Integer_Node l, Integer_Node r ->
       Bool_Node (l >= r)
   | Float_Node l, Float_Node r ->
@@ -187,6 +193,8 @@ and interpret_less_than_or_equal_to left_node right_node scope =
   let left_eval = interpret_expression left_node scope in
   let right_eval = interpret_expression right_node scope in
   match get_binary_result_type left_eval right_eval with
+  | Bool_Node l, Bool_Node r ->
+      Bool_Node (l <= r)
   | Integer_Node l, Integer_Node r ->
       Bool_Node (l <= r)
   | Float_Node l, Float_Node r ->
