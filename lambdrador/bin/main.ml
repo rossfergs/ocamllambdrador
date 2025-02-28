@@ -12,7 +12,7 @@ let read_file file =
       lines := line :: !lines
     done; assert false
   with End_of_file ->
-  String.concat "" (List.rev !lines)
+  String.concat "\n" (List.rev !lines)
 
 (* 
   defining a helperfunction to catch any error during the interpreting proccess and pring the error in a prittier way 

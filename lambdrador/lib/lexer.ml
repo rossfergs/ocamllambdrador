@@ -5,7 +5,7 @@
 let rec skip_whitespace input_string idx: int = 
   if idx < String.length input_string then
     match String.get input_string idx with
-      | ' ' -> skip_whitespace input_string (idx+1)
+      | ' ' | '\n' -> skip_whitespace input_string (idx+1)
       | _ -> idx
   else idx
 
@@ -41,7 +41,7 @@ let rec collect input_string idx token_type char_check end_char ~literal:literal
 let collect_operator input_string idx : (Token.token * int) =
   let open Token in
   let check_char = function
-    | '+' | '-' | '=' | '<' | '>' | '*' | '/' -> true
+    | '+' | '-' | '=' | '<' | '>' | '*' | '/' | ':' -> true
     | _ -> false
   in
   let check_end ch = not (check_char ch)
@@ -64,6 +64,7 @@ let collect_operator input_string idx : (Token.token * int) =
     | ">" -> GREATER
     | ">=" -> GREATEREQ
     | "!=" -> NEQ
+    | "::" -> CONS
     | _ -> raise (Error.Lexer_Error ("Unrecognised operator " ^ tok.tliteral))
   in
   {tliteral = tok.tliteral; ttype = token_class}, next_idx
@@ -72,7 +73,7 @@ let collect_operator input_string idx : (Token.token * int) =
 let collect_number input_string idx : (Token.token * int) =
   let open Token in
   let check_end = function
-    | ' ' | ')' | ';' | '+' | '=' | '*' | '-' -> true
+    | ' ' | ']' | ')' | ';' | '+' | '=' | '*' | '-' | ',' | '\n' -> true
     | _ -> false in
   let t, i = collect 
     input_string
@@ -103,11 +104,11 @@ let collect_string input_string idx qm : (Token.token * int) =
 *)
 let collect_keyword_or_namespace input_string idx : (Token.token * int) =
   let valid_character = function
-    | '0' .. '9' | 'a' .. 'z' | 'A' .. 'Z' | '_' -> true
+    | '0' .. '9' | 'a' .. 'z' | 'A' .. 'Z' | '_' | '`' -> true
     | _ -> false 
   in
   let check_end = function
-    | ' ' | ')' | ';' | '+' | '=' | '*' | '-' -> true
+    | ' ' | '\n' | ')' | ';' | '+' | '=' | '*' | '-' | '[' | ']' -> true
     | _ -> false 
   in
   let result, next_idx = collect
@@ -120,11 +121,17 @@ let collect_keyword_or_namespace input_string idx : (Token.token * int) =
   match result.tliteral with
   | "let" -> {tliteral = result.tliteral; ttype = Token.ASS}, next_idx
   | "print" -> {tliteral = result.tliteral; ttype = Token.PRINT}, next_idx
+  | "println" -> {tliteral = result.tliteral; ttype = Token.PRINTLN}, next_idx
   | "if" -> {tliteral = result.tliteral; ttype = Token.IF}, next_idx
   | "then" -> {tliteral = result.tliteral; ttype = Token.THEN}, next_idx
   | "else" -> {tliteral = result.tliteral; ttype = Token.ELSE}, next_idx
   | "true" -> {tliteral = result.tliteral; ttype = Token.BOOL}, next_idx
   | "false" -> {tliteral = result.tliteral; ttype = Token.BOOL}, next_idx
+  | "match" -> {tliteral = result.tliteral; ttype = Token.MATCH}, next_idx
+  | "case" -> {tliteral = result.tliteral; ttype = Token.CASE}, next_idx
+  | "when" -> {tliteral = result.tliteral; ttype = Token.WHEN}, next_idx
+  | "with" -> {tliteral = result.tliteral; ttype = Token.WITH}, next_idx
+  | literal when String.get literal 0 = '`' -> {tliteral = literal; ttype = TAG}, next_idx
   | _ -> result, next_idx
 
 (* 
@@ -143,12 +150,13 @@ let rec lex input_string idx: (Token.token * int) =
   | '@' -> skip_comment input_string (next_idx+1)
   | '0'..'9' -> collect_number input_string next_idx
   | '\'' | '"' -> collect_string input_string next_idx ch
-  | 'a' .. 'z' | 'A' .. 'Z' -> collect_keyword_or_namespace input_string next_idx
+  | 'a' .. 'z' | 'A' .. 'Z' | '_' | '`' -> collect_keyword_or_namespace input_string next_idx
   | '(' -> ({tliteral = str_ch; ttype = OPAR}, next_idx + 1)
   | ')' -> ({tliteral = str_ch; ttype = CPAR}, next_idx + 1)
-  | '*' | '+' | '-' | '=' | '<' | '!' | '>' -> collect_operator input_string next_idx
+  | '*' | '+' | '-' | '=' | '<' | '!' | '>' | ':' -> collect_operator input_string next_idx
   | ';' -> ({tliteral = str_ch; ttype = DELIM}, next_idx + 1)
-  | '\n' -> ({tliteral = str_ch; ttype = EOF}, next_idx + 1)
+  | '[' -> ({tliteral = str_ch; ttype = OSQP}, next_idx + 1)
+  | ']' -> ({tliteral = str_ch; ttype = CSQP}, next_idx + 1)
   | _ -> raise (Error.Lexer_Error (String.cat "unrecognised character " str_ch))
   
 and skip_comment input_string idx =

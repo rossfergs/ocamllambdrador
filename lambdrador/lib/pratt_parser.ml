@@ -4,7 +4,7 @@ let parse_expression input_string start_idx =
     let open Token in
     match input_token.ttype with
       | EQ | NEQ  | LESS | LESSEQ | GREATER | GREATEREQ  -> 5
-      | ADD | SUB -> 2
+      | ADD | SUB | CONS -> 2
       | MULT -> 3
       | EOF | DELIM -> -1
       | _ -> 0
@@ -61,6 +61,8 @@ let parse_expression input_string start_idx =
     let open Parse_node in
     let right_node, current_idx = parse (get_lbp operator) start_idx in
     match operator.ttype with
+      | CONS ->
+        Cons_Node (left_node, right_node), current_idx
       | ADD ->
         Add_Node (left_node, right_node), current_idx
       | MULT ->

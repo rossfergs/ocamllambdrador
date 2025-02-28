@@ -1,12 +1,12 @@
-let x = 2;
+let x = 2
 
-print "x is: ";
-print x;
-print "";
+print "x is: "
+println x
+println ""
 
-print "x^2 is: ";
-print x * x;
-print "";
+print "x^2 is: "
+println x * x
+println ""
 
-print "x given parameters 1 and 2?: ";
-print x 1 2;
+print "x given parameters 1 and 2?: "
+println x 1 2
