@@ -6,7 +6,7 @@ exception Interpreter_Error of string
 
 let print_error = function
 | Lexer_Error msg -> 
-  print_endline ("Lexer_ Error: " ^ msg)
+  print_endline ("Lexer Error: " ^ msg)
 | Parser_Error msg ->
   print_endline ("Parser Error: " ^ msg)
 | Interpreter_Error msg ->

@@ -1,21 +1,21 @@
-let suc a = a + 1;
+let suc a = a + 1
 
-print "simple 'successor' function given 1 as input:";
-print suc 1;
+println "simple 'successor' function given 1 as input:"
+println suc 1
 
 let add_square n =
     let square = n * n;
-    n + square;
+    n + square
 
-print "";
-print "function that makes use of internally declared variable";
-print add_square 10;
+println ""
+println "function that makes use of internally declared variable"
+println add_square 10
 
 let some_func a b c =
     let mult n1 n2 =
         n1 * n2;
-    mult a b + mult b c;
+    mult a b + mult b c
 
-print "";
-print "function that has nested function declared within";
-print some_func 1 2 3;
+println ""
+println "function that has nested function declared within"
+println some_func 1 2 3

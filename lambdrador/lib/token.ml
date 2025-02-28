@@ -1,4 +1,10 @@
 type token_type =
+  | TAG
+  | WHEN
+  | MATCH
+  | WITH
+  | CASE
+  | CONS
   | BOOL
   | LESS
   | GREATER
@@ -18,11 +24,14 @@ type token_type =
   | DELIM
   | EOF
   | PRINT
+  | PRINTLN
   | NAMESPACE
   | STRING
   | INTEGER
   | FLOAT
   | NUMBER
+  | OSQP
+  | CSQP
 [@@deriving show]
 
 type token = {tliteral : string; ttype : token_type}

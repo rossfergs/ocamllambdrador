@@ -1,20 +1,20 @@
-let apply f a b = f a b;
+let apply f a b = f a b
 
-let add a b = a + b;
+let add a b = a + b
 
-let sub a b = a - b;
+let sub a b = a - b
 
-print "using functions as values on input";
-print "";
-print "function 'apply' takes in 3 parameters, and applies the last 2 inputs to the first input";
-print "";
-print "by enclosing a parameter in parenthesis parameters can be given, the function ";
-print "will be evaluated and the resulting value will be passed";
+println "using functions as values on input"
+println ""
+println "function 'apply' takes in 3 parameters, and applies the last 2 inputs to the first input"
+println ""
+println "by enclosing a parameter in parenthesis parameters can be given, the function "
+println "will be evaluated and the resulting value will be passed"
+println ""
 
-print "";
-print "apply add 1 (sub 2 2) = ";
-print apply add 1 (sub 2 2);
+println "apply add 1 (sub 2 2) = "
+println (apply add 1 (sub 2 2))
 
-let func a b c = a + b + c;
+let func a b c = a + b + c
 
-print apply func 1 2;
+print apply func 1 2
