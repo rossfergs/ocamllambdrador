@@ -1,4 +1,10 @@
 type expression_node =
+  | Block_Node of {
+      parameters: string list;
+      statements: statement_node list;
+      expression:expression_node;
+      closure_scope: (string list * expression_node list) option
+  }
   | Tagged_Node of {
       tag: string;
       data: expression_node option
@@ -10,7 +16,7 @@ type expression_node =
   | Case_Node of {
       pattern: expression_node;
       guard: expression_node option;
-      block: block_node
+      block: expression_node
   }
   | Cons_Node of expression_node * expression_node
   | List_Node of list_node
@@ -20,8 +26,8 @@ type expression_node =
   | String_Node of string
   | If_Node of {
       condition: expression_node;
-      then_block: block_node;
-      else_block: block_node
+      then_block: expression_node;
+      else_block: expression_node
   }
   | Greater_Node of (expression_node * expression_node)
   | Less_Node of (expression_node * expression_node)
@@ -45,17 +51,11 @@ and list_node =
 and statement_node = 
   | Let_Node of {
       namespace: string;
-      block: block_node
+      block: expression_node
   }
   | Print_Node of expression_node
   | Println_Node of expression_node
   | Expr of expression_node
-
-and block_node = {
-    parameters: string list;
-    statements: statement_node list;
-    expression:expression_node
-}
 
 type program_node = statement_node list
 

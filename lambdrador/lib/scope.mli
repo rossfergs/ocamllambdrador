@@ -48,10 +48,11 @@ module String_map :
     val of_seq : (key * 'a) Seq.t -> 'a t
   end
 type scope = {
-  inner_scope : Parse_node.block_node String_map.t;
+  inner_scope : Parse_node.expression_node String_map.t;
   outer_scope : scope option;
 }
-val bind : Parse_node.block_node String_map.t -> scope -> scope
+val to_list_tuple : Parse_node.expression_node String_map.t -> string list * Parse_node.expression_node list
+val bind : Parse_node.expression_node String_map.t -> scope -> scope
 val print_scope : scope -> unit
 val empty : scope
-val get : string -> scope -> Parse_node.block_node
+val get : string -> scope -> Parse_node.expression_node

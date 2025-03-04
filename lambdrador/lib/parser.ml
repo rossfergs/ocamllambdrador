@@ -123,11 +123,11 @@ and parse_expression input_string idx =
 
 
 and parse_block input_string idx ~input_params:input_params ~statement_list:statement_list 
-  : Parse_node.block_node * int = 
+  : Parse_node.expression_node * int = 
   let next_statement, next_idx = parse_statement input_string idx in
   match next_statement with
   | Expr e -> 
-    {parameters = input_params; statements = List.rev statement_list; expression = e}, next_idx
+      Block_Node {parameters = input_params; statements = List.rev statement_list; expression = e; closure_scope = None}, next_idx
   | _ -> 
     let delim_tok, delim_idx = Lexer.lex input_string next_idx in
     if delim_tok.ttype != DELIM 

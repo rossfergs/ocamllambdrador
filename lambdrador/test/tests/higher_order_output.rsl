@@ -1,8 +1,0 @@
-let factor f =
-    let multiply n =
-        f * n;
-    multiply;
-
-let double number = factor 2 number;
-
-print double 10;
