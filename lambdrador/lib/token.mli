@@ -1,4 +1,5 @@
 type token_type =
+  | LD
   | TAG
   | WHEN
   | MATCH

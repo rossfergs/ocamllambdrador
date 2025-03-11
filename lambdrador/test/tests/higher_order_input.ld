@@ -14,3 +14,6 @@ println ""
 
 println "apply add 1 (sub 2 2) = "
 println (apply add 1 (sub 2 2))
+
+println "anonymous func time"
+println (apply (ld a b = a + b) 10 1)

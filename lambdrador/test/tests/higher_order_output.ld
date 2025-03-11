@@ -8,3 +8,4 @@ let triple = factor 3
 
 println double 10
 println triple 10
+println (factor 4 10)
