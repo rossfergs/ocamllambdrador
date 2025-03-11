@@ -15,6 +15,5 @@ println ""
 println "apply add 1 (sub 2 2) = "
 println (apply add 1 (sub 2 2))
 
-let func a b c = a + b + c
-
-print apply func 1 2
+println "anonymous func time"
+println (apply (ld a b = a + b) 10 1)

@@ -122,6 +122,7 @@ let collect_keyword_or_namespace input_string idx : (Token.token * int) =
   | "let" -> {tliteral = result.tliteral; ttype = Token.ASS}, next_idx
   | "print" -> {tliteral = result.tliteral; ttype = Token.PRINT}, next_idx
   | "println" -> {tliteral = result.tliteral; ttype = Token.PRINTLN}, next_idx
+  | "ld" -> {tliteral = result.tliteral; ttype = Token.LD}, next_idx
   | "if" -> {tliteral = result.tliteral; ttype = Token.IF}, next_idx
   | "then" -> {tliteral = result.tliteral; ttype = Token.THEN}, next_idx
   | "else" -> {tliteral = result.tliteral; ttype = Token.ELSE}, next_idx

@@ -99,6 +99,11 @@ and parse_match input_string idx : Parse_node.expression_node * int =
     Match_Node {expr = expr; cases = cases}, end_idx
 
 
+and parse_anonymous_func input_string idx = 
+  let params, params_idx = parse_parameters input_string idx ~parameter_list:[] in
+  parse_block input_string params_idx ~input_params:params ~statement_list:[]
+
+
 and parse_if input_string idx = 
   let open Parse_node in
   let expr, expr_idx = pratt_parse input_string 0 idx in
@@ -123,11 +128,11 @@ and parse_expression input_string idx =
 
 
 and parse_block input_string idx ~input_params:input_params ~statement_list:statement_list 
-  : Parse_node.block_node * int = 
+  : Parse_node.expression_node * int = 
   let next_statement, next_idx = parse_statement input_string idx in
   match next_statement with
   | Expr e -> 
-    {parameters = input_params; statements = List.rev statement_list; expression = e}, next_idx
+      Block_Node {parameters = input_params; statements = List.rev statement_list; expression = e; closure_scope = None}, next_idx
   | _ -> 
     let delim_tok, delim_idx = Lexer.lex input_string next_idx in
     if delim_tok.ttype != DELIM 
@@ -189,6 +194,8 @@ and nud input_string input_token start_idx : (Parse_node.expression_node * int) 
   let open Token in
   let open Parse_node in
   match input_token.ttype with
+  | LD -> 
+      parse_anonymous_func input_string start_idx
   | BOOL ->
       let node = match input_token.tliteral with
       | "true" -> Bool_Node true

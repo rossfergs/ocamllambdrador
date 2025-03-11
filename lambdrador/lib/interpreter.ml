@@ -1,3 +1,11 @@
+let split_at_n n l = 
+  let rec aux c acc = function
+  | x :: xs when c > 0 -> aux (c-1) (x :: acc) xs
+  | rem -> List.rev acc, rem
+  in
+  aux n [] l
+
+
 let get_type = let open Parse_node in function
 | Float_Node _ -> "Float"
 | Integer_Node _ -> "Int"
@@ -8,27 +16,27 @@ let get_type = let open Parse_node in function
 
 
 let _get_list_length = let open Parse_node in function
-  | List_Node list ->
-      let rec impl counter = function
-      | Nil -> counter | Node (_, r) -> impl (counter+1) r
-      in
-      impl 0 list
-  | _ -> raise (Error.Interpreter_Error "not a list")
+| List_Node list ->
+    let rec impl counter = function
+    | Nil -> counter | Node (_, r) -> impl (counter+1) r
+    in
+    impl 0 list
+| _ -> raise (Error.Interpreter_Error "not a list")
 
 
 let get_binary_result_type l r =
   let open Parse_node in
   match get_type l, get_type r with
-    | a, b when a == b -> l, r
-    | "String", n | n, "String" -> 
-        let msg = "Cannot apply operator from type String and " ^ n in
-        raise (Error.Interpreter_Error msg)
-    | "Bool", n | n, "Bool" ->
-        let msg = "Cannot apply operator from type Bool and " ^ n in
-        raise (Error.Interpreter_Error msg)
-    | "Float", _ | _, "Float" -> to_float_node l, to_float_node r
-    | _, _ -> 
-        raise (Error.Interpreter_Error "Unknown expression result")
+  | a, b when a == b -> l, r
+  | "String", n | n, "String" -> 
+      let msg = "Cannot apply operator from type String and " ^ n in
+      raise (Error.Interpreter_Error msg)
+  | "Bool", n | n, "Bool" ->
+      let msg = "Cannot apply operator from type Bool and " ^ n in
+      raise (Error.Interpreter_Error msg)
+  | "Float", _ | _, "Float" -> to_float_node l, to_float_node r
+  | _, _ -> 
+      raise (Error.Interpreter_Error "Unknown expression result")
 
 
 (*
@@ -85,48 +93,65 @@ and interpret_print node scope =
   in
   let eval_node = interpret_expression node scope in
   match eval_node with
+  | Block_Node _ -> print_string "block"
   | Integer_Node n -> print_int n
   | String_Node s -> print_string s
   | Float_Node f -> print_float f
   | Bool_Node b -> if b then print_string "true" else print_string "false"
   | List_Node l -> print_string "["; print_list l
-  | Tagged_Node {tag; data} -> print_string tag; print_string " ";
+  | Tagged_Node {tag; data} -> print_string tag;
       (match data with
       | None -> ()
-      | Some e -> interpret_print e scope
+      | Some e -> print_string " "; interpret_print e scope
       )
   | _ -> print_string "cannot print expression type"
 
 
 (* intepreting a variable node, which is basically a function xd *)
 and interpret_function node scope = 
+  (* getting the block assocaited with the function namespace and its parameters *)
+  let statements, expression, taken_params, given_params = match node with
+  | Parse_node.Variable_Node {namespace; parameters = params} -> 
+      let statements, expression, parameters = (match Scope.get namespace scope with
+      | Block_Node {statements; expression; parameters; _} -> statements, expression, parameters
+      | _ -> raise (Error.Interpreter_Error "non block expression when interpreting function")
+      ) in
+      statements, expression, parameters, params
+  | _ -> raise (Error.Interpreter_Error "non-namespace expression being interpreted as function")
+  in
+  (* splitting the params to give to result of output *)
+  let current_params, _remaining_params = split_at_n (List.length taken_params) given_params in
   (* function to set the parameters of the function call *)
   let rec set_params taken given params =
     match taken, given with
     | [], [] ->
         params
     | [] , _ :: _ -> raise (Error.Interpreter_Error "Too many params given")
-    | _ :: _, [] -> print_endline "ERROR!";
+    | _ :: _, [] ->
         raise (Error.Interpreter_Error "Not enough params given")
     | taken_head :: taken_tail, given_head :: given_tail ->
-        (*print_string " "; print_endline taken_head;*)
         let open Parse_node in
-        (* FIXME:*)
-        (*
-           CURRENTLY I BELIEVE HIGHER ORDER FUNCTIONS DO NOT WORK
-           CAUSE ITS TRYING TO INTERPRET AN EXPRESSION ON INPUT
-
-           INVESTIGATE
-        *)
         let block = match given_head with
         | Variable_Node {namespace; parameters = []} ->
             (match Scope.get namespace scope with
-            | b when b.parameters != [] -> b
-            | _ -> 
-                Parse_node.{statements = []; expression = interpret_expression given_head scope; parameters = []}
+            | Block_Node {statements; expression; parameters; closure_scope} when parameters != [] ->
+                Block_Node {statements; expression; parameters; closure_scope}
+            | _ ->
+                Block_Node {
+                  statements = [];
+                  expression = interpret_expression given_head scope;
+                  parameters = [];
+                  closure_scope = None
+                }
             )
+        | Block_Node _ -> given_head
         | _ ->
-            Parse_node.{statements = []; expression = interpret_expression given_head scope; parameters = []}
+            Block_Node {
+              statements = [];
+              expression = interpret_expression given_head scope;
+              parameters = [];
+              closure_scope = None
+            }
         in
         let open Scope in
         set_params
@@ -134,41 +159,43 @@ and interpret_function node scope =
           given_tail
           (bind (String_map.add taken_head block params.inner_scope) params)
   in
-  (* getting the block assocaited with the function namespace and its parameters *)
-  let func, given_params = match node with
-  | Parse_node.Variable_Node {namespace; parameters = params} -> 
-      (*print_string "NAME: "; print_endline namespace;*)
-      Scope.get namespace scope, params
-  | _ -> raise (Error.Interpreter_Error "non-namespace expression being interpreted as function")
-  in
-  (* List.iter (fun s -> print_string "INPUT PARAM: "; print_endline s) func.parameters; *)
-  (* List.iter (fun n -> print_string "GIVEN PARAM: "; Parse_node.print_node n) given_params; *)
   let new_scope = Scope.{inner_scope = Scope.String_map.empty; outer_scope = Some scope} in
-  let function_scope = set_params func.parameters given_params new_scope in
-  let result = interpret_block func function_scope in
+  let function_scope = set_params taken_params current_params new_scope in
+  let result = interpret_block statements expression function_scope in 
+  match _remaining_params with
+  | [] ->
+      result
+  | pl ->
+      (match result with
+      | Parse_node.Block_Node {statements = s; expression =  e; parameters = p; closure_scope = Some (sl, el)} -> 
+          let lexical_scope = set_params sl el new_scope in
+          let function_scope = set_params p pl lexical_scope in
+          interpret_block s e function_scope
+      | _ -> raise (Error.Interpreter_Error "Too many params given")
+      )
+
+
+and interpret_block statements expr scope =
   let open Parse_node in
-  match result with
-  | Variable_Node {namespace; parameters} when parameters != [] ->
-      print_endline "higher order";
-      interpret_function (Variable_Node {namespace; parameters = given_params}) scope
-  | _ -> result
-
-
-and interpret_block node scope =
-  (*
-  print_newline (); print_newline ();
-  Scope.print_scope scope;
-  print_newline (); print_newline ();
-  *)
-  let rec interpret_block_impl statements block_scope = match statements with
+  let rec interpret_block_impl statement_list block_scope = match statement_list with
   | [] -> block_scope
   | statement :: remainder ->
       let new_scope = interpret_statement statement block_scope in
       interpret_block_impl remainder new_scope
   in
-  let new_scope = interpret_block_impl node.statements scope in
-  let open Parse_node in
-  interpret_expression node.expression new_scope
+  let new_scope = interpret_block_impl statements
+  scope in
+  match expr with
+  | Variable_Node {namespace; parameters} when parameters = [] ->
+      (match Scope.get namespace new_scope with
+      | Block_Node {statements; expression; parameters; _} when parameters != [] ->
+          let closure_scope = Scope.to_list_tuple new_scope.inner_scope in
+          Block_Node {statements; expression; parameters; closure_scope = Some (closure_scope)}
+      | _ ->
+          interpret_expression expr new_scope
+      )
+  | _ ->
+      interpret_expression expr new_scope
 
 
 and interpret_equals left_node right_node scope =
@@ -277,8 +304,8 @@ and interpret_predicate node scope =
 and interpret_if condition then_block else_block scope =
   let open Parse_node in
   match interpret_expression condition scope with
-  | Bool_Node true -> interpret_block then_block scope
-  | Bool_Node false -> interpret_block else_block scope
+  | Bool_Node true -> interpret_expression then_block scope
+  | Bool_Node false -> interpret_expression else_block scope
   | other_node ->
       let error_msg = "condition in if expression must evaluate to Bool, not " ^
       get_type other_node in
@@ -301,14 +328,14 @@ and match_cons list left right cons_scope =
       (match list with
       | Node (cur, rem) -> 
           let open Scope in
-          let new_item = {statements = []; expression = cur; parameters = []} in
+          let new_item = Block_Node {statements = []; expression = cur; parameters = []; closure_scope = None} in
           let new_scope = Scope.bind (Scope.String_map.add name new_item cons_scope.inner_scope) cons_scope in
           (match right with 
           | Cons_Node (l, r) -> match_cons rem l r new_scope
           | Variable_Node {namespace = "_"; _} ->
               Some new_scope
           | Variable_Node {namespace = rem_name; _} ->
-              let end_item = {statements = []; expression = List_Node rem; parameters = []} in
+              let end_item = Block_Node {statements = []; expression = List_Node rem; parameters = []; closure_scope = None} in
               let end_scope = Scope.bind (Scope.String_map.add rem_name end_item new_scope.inner_scope) new_scope in
               Some end_scope
           | List_Node l -> 
@@ -327,7 +354,7 @@ and match_cons list left right cons_scope =
           | Variable_Node {namespace = "_"; _} ->
               Some cons_scope
           | Variable_Node {namespace = rem_name; _} ->
-              let new_item = {statements = []; expression = List_Node rem; parameters = []} in
+              let new_item = Block_Node {statements = []; expression = List_Node rem; parameters = []; closure_scope = None} in
               let end_scope = Scope.bind (Scope.String_map.add rem_name new_item cons_scope.inner_scope) cons_scope in
               Some end_scope
           | List_Node l -> 
@@ -345,7 +372,7 @@ and match_list pattern_list expr_list list_scope =
   | Node (Variable_Node {namespace = "_"; _}, pattern_rem), Node (_, expr_rem) ->
       match_list pattern_rem expr_rem list_scope
   | Node (Variable_Node {namespace = name; _}, pattern_rem), Node (e, expr_rem) ->
-      let new_item = {statements = []; expression = e; parameters = []} in
+      let new_item = Block_Node {statements = []; expression = e; parameters = []; closure_scope = None} in
       let new_scope = Scope.bind (Scope.String_map.add name new_item list_scope.inner_scope) list_scope in
       match_list pattern_rem expr_rem new_scope
   | Node (pattern_expr, pattern_rem), Node (expr_expr, expr_rem) when pattern_expr = expr_expr ->
@@ -378,22 +405,22 @@ and interpret_match expr cases scope =
   (* wildcard cases *)
   | Case_Node {pattern = Variable_Node {namespace = "_"; _}; guard; block} :: cs ->
       (match guard with
-      | None -> interpret_block block scope
+      | None -> interpret_expression block scope
       | Some g ->
           if interpret_expression g scope = Bool_Node true
-          then interpret_block block scope
+          then interpret_expression block scope
           else interpret_match expr cs scope
       )
   (* variable cases *)
   | Case_Node {pattern = Variable_Node {namespace = name; _}; guard; block} :: cs ->
       let open Scope in
-      let new_item = {statements = []; expression = expr; parameters = []} in
+      let new_item = Block_Node {statements = []; expression = expr; parameters = []; closure_scope = None} in
       let case_scope = bind (String_map.add name new_item scope.inner_scope) scope in
       (match guard with
-      | None -> interpret_block block case_scope
+      | None -> interpret_expression block case_scope
       | Some g ->
           if interpret_expression g case_scope = Bool_Node true
-          then interpret_block block case_scope
+          then interpret_expression block case_scope
           else interpret_match expr cs scope
       )
   | Case_Node {pattern = Tagged_Node {tag; data}; guard; block} :: cs when is_tag expr ->
@@ -404,16 +431,16 @@ and interpret_match expr cases scope =
       let expr_tag, expr_data = unwrap_tag expr in
       if not (String.equal expr_tag tag) then interpret_match expr cs scope else
       (match data, expr_data with
-      | None, None -> interpret_block block scope
+      | None, None -> interpret_expression block scope
       | Some(Cons_Node (left, right)), Some (List_Node l) -> 
           (match match_cons l left right scope with
           | None -> interpret_match expr cs scope
           | Some s -> 
               (match guard with
-              | None -> interpret_block block s
+              | None -> interpret_expression block s
               | Some g ->
                   if interpret_expression g scope = Bool_Node true 
-                  then interpret_block block scope
+                  then interpret_expression block scope
                   else interpret_match expr cs scope
               )
           )
@@ -422,29 +449,29 @@ and interpret_match expr cases scope =
           | None -> interpret_match expr cs scope
           | Some s ->
               (match guard with
-              | None -> interpret_block block s
+              | None -> interpret_expression block s
               | Some g -> 
                   if interpret_expression g scope = Bool_Node true 
-                  then interpret_block block scope
+                  then interpret_expression block scope
                   else interpret_match expr cs scope
               )
           )
       | Some (Variable_Node {namespace; _}), Some e -> 
-          let new_item = {statements = []; expression = e; parameters = []} in
+          let new_item = Block_Node {statements = []; expression = e; parameters = []; closure_scope = None} in
           let new_scope = Scope.bind (Scope.String_map.add namespace new_item scope.inner_scope) scope in
           (match guard with
-          | None -> interpret_block block new_scope
+          | None -> interpret_expression block new_scope
           | Some g -> 
               if interpret_expression g new_scope = Bool_Node true 
-              then interpret_block block new_scope
+              then interpret_expression block new_scope
               else interpret_match expr cs scope
           )
       | Some ce, Some ee when ce = ee ->
           (match guard with
-          | None -> interpret_block block scope
+          | None -> interpret_expression block scope
           | Some g -> 
               if interpret_expression g scope = Bool_Node true 
-              then interpret_block block scope
+              then interpret_expression block scope
               else interpret_match expr cs scope
           )
       | _ -> interpret_match expr cs scope
@@ -452,10 +479,10 @@ and interpret_match expr cases scope =
   (* matching expression cases *)
   | Case_Node {pattern; guard; block} :: cs when expr = pattern ->
       (match guard with
-      | None -> interpret_block block scope
+      | None -> interpret_expression block scope
       | Some g -> 
           if interpret_expression g scope = Bool_Node true 
-          then interpret_block block scope
+          then interpret_expression block scope
           else interpret_match expr cs scope
       )
   | Case_Node {pattern = Cons_Node (left, right); guard; block} :: cs when is_list expr ->
@@ -470,10 +497,10 @@ and interpret_match expr cases scope =
       | Some s -> 
           (match guard with
           | Some g -> if interpret_expression g s = Bool_Node true 
-              then interpret_block block s
+              then interpret_expression block s
               else interpret_match expr cs scope
           | None ->
-              interpret_block block s
+              interpret_expression block s
           )
       )
   (* matching lists *) 
@@ -489,10 +516,10 @@ and interpret_match expr cases scope =
       | Some s -> 
           (match guard with
           | Some g -> if interpret_expression g s = Bool_Node true then
-              interpret_block block s
+              interpret_expression block s
               else interpret_match expr cs scope
           | None ->
-              interpret_block block s
+              interpret_expression block s
           )
       )
   (* current case didnt match, move to next *)
@@ -542,6 +569,17 @@ and interpret_expression node scope =
       apply sub_nodes l r
   | Mult_Node (l, r) ->
       apply mult_nodes l r
+  (*
+  | Variable_Node {namespace; parameters = []} ->
+      print_endline namespace;
+      (match Scope.get namespace scope with
+      | Block_Node {statements; expression; parameters} when parameters != [] ->
+          print_int (List.length parameters); print_newline ();
+          Block_Node {statements; expression; parameters}
+      | Block_Node {parameters; _} -> print_int (List.length parameters); print_newline (); interpret_function node scope
+      | _ -> interpret_function node scope
+      )
+      *)
   | Variable_Node _ ->
       interpret_function node scope
   | Div_Node _ ->
@@ -554,6 +592,7 @@ and interpret_expression node scope =
       let evaluated_expr = interpret_expression expr scope in
       let new_scope = Scope.{inner_scope = Scope.String_map.empty; outer_scope = Some scope} in
       interpret_match evaluated_expr cases new_scope
+  | Block_Node {statements; expression; _} -> interpret_block statements expression scope
   | _ -> raise (Error.Interpreter_Error "Node type not yet implemented")
 
 
