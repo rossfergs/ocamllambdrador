@@ -1,4 +1,5 @@
 let factor f =
+    let x = 1;
     let multiply n =
         f * n;
     multiply

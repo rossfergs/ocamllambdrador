@@ -1,18 +1,3 @@
-(*
-  imperative file reading solution, excluding new_lines
-  found from stack overflow by user gascha in this answer:
-  https://stackoverflow.com/a/15848796
-*)
-let read_file file =
-  let ic = open_in file in
-  let lines = ref [] in
-  try
-    while true do
-      let line = input_line ic in
-      lines := line :: !lines
-    done; assert false
-  with End_of_file ->
-  String.concat "\n" (List.rev !lines)
 
 (* 
   defining a helperfunction to catch any error during the interpreting proccess and pring the error in a prittier way 
@@ -64,7 +49,7 @@ let () =
       print_endline ("Unrecognised command: " ^ flag);
       argi := argc + 1
     | file_path ->
-      let file = read_file file_path in
+      let file = Lambdrador.Util.read_file file_path in
       let _ = interpret' file (Some (Lambdrador.Scope.empty)) in
       argi := argc + 1
   done

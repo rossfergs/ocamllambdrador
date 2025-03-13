@@ -1,3 +1,4 @@
+
 let not b = if b then false else true
 
 let rev l =
@@ -64,6 +65,12 @@ let nth list n =
       case [] then print "empty list"; [];
   aux n list
 
+let mem list val =
+  match list with
+    case [] then false
+    case x :: _ when x = val then true
+    case _ :: xs then mem xs val
+
 let head list =
   match list with
     case x :: _ then
@@ -84,8 +91,6 @@ let church n f v =
       church (n-1) f (f v)
     case _ then v
 
-
-
 @
 let flatten list = 
   let aux acc l = 
@@ -96,39 +101,73 @@ let flatten list =
   aux [] list
 @
 
-println ""
+let slice list start_idx end_idx =
+  let aux acc counter =
+    if counter = (end_idx + 1) then rev acc
+    else aux ((nth list counter) :: acc) (counter+1);
+  aux [] start_idx
 
-print "reversing a list of [1; 2; 3]: " println (rev [1; 2; 3])
-println ""
+let flatten list = 
+  let aux acc l =
+    match l with
+      case [] then rev acc
+      case (x :: xs) :: rem then
+        let new_acc = aux (x :: acc) xs;
+        aux new_acc rem
+      case x :: xs then aux (x :: acc) xs;
+  aux [] list
 
-print "concatenating [1; 2; 3] and [4; 5; 6]: " println (concat [1; 2; 3] [4; 5; 6])
-println ""
+let zip left right =
+  let aux acc l r =
+    match [l; r] with
+      case [[]; _] then
+        rev acc
+      case [_; []] then
+        rev acc
+      case [x :: xs; y :: ys] then
+        aux ([x; y] :: acc) xs ys;
+  aux [] left right
 
-print "flattening a tree of `Branch [ `Branch [ `Leaf 1; `Leaf 2]; `Leaf 3]: " println (flatten_tree (`Branch [ `Branch [ `Leaf 1; `Leaf 2]; `Leaf 3]))
+let range n = 
+  let aux acc c =
+    if c = n then rev acc
+    else aux (c :: acc) (c+1);
+  aux [] 0
 
-println ""
-let is_less_than_five n = n < 5
+let length list = 
+  let aux l c =
+    match l with
+      case [] then c
+      case _ :: xs then aux xs (c+1);
+  aux list 0
 
-print "filtering [1; 2; 3; 4; 5; 6; 7; 8; 9; 10] to have only numbers under 5: "
-println (filter is_less_than_five [1; 2; 3; 4; 5; 6; 7; 8; 9; 10])
-println ""
+let enumerate list = 
+  zip (range (length list)) list
 
-let by_ten n = n * 10
-print "mapping [1; 2; 3] to multiply each value by 10: " println (map by_ten [1;2;3])
-println ""
-print "mapping [1; 2; 3] to add one to each value (using anonymous function): " println (map (ld n = n + 1) [1;2;3])
-println ""
+let dedup list = 
+  let aux acc l =
+    match l with
+      case [] then rev acc
+      case v :: vs when not (mem acc v) then aux (v :: acc) vs
+      case _ :: vs then aux acc vs;
+  aux [] list
 
-let sub a b = a - b
-print "folding left, subtracting a list of [1;2;3] together: " println (foldl sub 0 [1;2;3])
-println ""
+let alter list idx value =
+  let aux acc l =
+    match l with
+      case [] then rev acc
+      case [i; _] :: rem when i = idx then
+        aux (value :: acc) rem
+      case [_; v] :: rem then aux (v :: acc) rem;
+  aux [] (enumerate list)
 
-print "folding right, subtracting a list of [1; 2; 3] together: " println (foldr sub 0 [1;2;3]) println ""
+let alter_2d list x y value = 
+  let aux acc l =
+    match l with
+      case [] then rev acc
+      case [i; inner_list] :: rem when i = x then
+        aux ((alter inner_list y value) :: acc) rem
+      case [i; x :: xs] :: rem then aux ((x :: xs) :: acc) rem;
+  let el = (enumerate list);
+  aux [] el
 
-print "getting the 3rd index of [0;1;2;3;4;5] (expected = 3): " println (nth [0;1;2;3;4;5] 3) println ""
-
-print "head of [1;2;3]: " println (head [1;2;3]) println ""
-print "tail of [1;2;3]: " println (tail [1;2;3]) println ""
-
-let suc n = n + 1
-print "function modelling church numeral style encoding, appling successor function to 0 5 times: " println (church 5 suc 0)

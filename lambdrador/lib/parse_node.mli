@@ -1,5 +1,6 @@
 type expression_node =
-    | Block_Node of {
+  | Negative_Node of expression_node
+  | Block_Node of {
       parameters: string list;
       statements: statement_node list;
       expression:expression_node;
@@ -49,7 +50,8 @@ and list_node =
   | Node of expression_node * list_node
 
 and statement_node =
-    Let_Node of { namespace : string; block : expression_node; }
+  | Import_Node of string
+  | Let_Node of { namespace : string; block : expression_node; }
   | Print_Node of expression_node
   | Println_Node of expression_node
   | Expr of expression_node
@@ -58,4 +60,7 @@ type program_node = statement_node list
 
 val to_int_node : expression_node -> expression_node
 val to_float_node : expression_node -> expression_node
+val to_string_node : expression_node -> expression_node
 val print_node : expression_node -> unit
+val string_of_expression : expression_node -> string
+val string_of_statement : statement_node -> string

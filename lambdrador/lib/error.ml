@@ -11,5 +11,6 @@ let print_error = function
   print_endline ("Parser Error: " ^ msg)
 | Interpreter_Error msg ->
   print_endline ("Interpreter Error: " ^ msg)
-| _ -> 
-  print_endline "Unknown Error Type??"
+| exn -> 
+  print_endline ("Exception: " ^ Printexc.to_string exn);
+  Printexc.print_backtrace stdout

@@ -9,7 +9,7 @@ let get_lbp input_token =
   match input_token.ttype with
   | EQ | NEQ  | LESS | LESSEQ | GREATER | GREATEREQ  -> 5
   | ADD | SUB | CONS -> 2
-  | MULT -> 3
+  | MULT | DIV -> 3
   | EOF | DELIM -> -1
   | _ -> 0
 
@@ -54,7 +54,7 @@ and parse_parameters input_string idx ~parameter_list:parameter_list : string li
   | Token.EQ ->
     List.rev parameter_list, current_idx
   | _ ->
-    let msg = "invalid function parameter" ^ current_token.tliteral in
+    let msg = "invalid function parameter " ^ current_token.tliteral in
     raise (Error.Parser_Error msg)
 
 
@@ -166,11 +166,17 @@ and parse_statement input_string idx : Parse_node.statement_node * int =
   let open Token in
   let current_token, current_idx = Lexer.lex input_string idx in
   match current_token.ttype with
+  | IMPORT ->
+      let tok, tok_idx = Lexer.lex input_string current_idx in
+      (match tok.ttype with
+      | STRING -> Parse_node.Import_Node (tok.tliteral), tok_idx+1
+      | _ -> raise (Error.Parser_Error "filename must be given as a string in import statement")
+      )
   | ASS -> parse_assignment input_string current_idx
   | PRINT -> parse_print input_string current_idx
   | PRINTLN -> parse_println input_string current_idx
   | _ -> let e, expr_idx = parse_expression input_string idx in
-    Expr e, expr_idx
+      Expr e, expr_idx
 
 (* 
   BELOW IS A PRATT PARSER, IDK HOW TO PUT THIS INTO ITS OWN MODULE
@@ -194,6 +200,10 @@ and nud input_string input_token start_idx : (Parse_node.expression_node * int) 
   let open Token in
   let open Parse_node in
   match input_token.ttype with
+  | SUB ->
+      let next_tok, next_idx = Lexer.lex input_string start_idx in
+      let node, end_idx = nud input_string next_tok next_idx in
+      Negative_Node node, end_idx
   | LD -> 
       parse_anonymous_func input_string start_idx
   | BOOL ->
@@ -238,7 +248,7 @@ and nud input_string input_token start_idx : (Parse_node.expression_node * int) 
           Tagged_Node {tag = input_token.tliteral; data = Some tagged_data}, tag_idx
       | _ -> Tagged_Node {tag = input_token.tliteral; data = None}, start_idx
       )
-  | _ -> print_endline "TOKEN!"; raise (Error.Parser_Error ("unknown token in expression '" ^ input_token.tliteral ^ "'"))
+  | _ -> raise (Error.Parser_Error ("unknown token in expression '" ^ input_token.tliteral ^ "'"))
 
 
 and led input_string left_node operator start_idx : (Parse_node.expression_node * int) =
@@ -251,27 +261,29 @@ and led input_string left_node operator start_idx : (Parse_node.expression_node 
   let right_node, current_idx = pratt_parse input_string binding_power start_idx in
   match operator.ttype with
   | CONS ->
-    Cons_Node (left_node, right_node), current_idx
+      Cons_Node (left_node, right_node), current_idx
   | ADD ->
-    Add_Node (left_node, right_node), current_idx
+      Add_Node (left_node, right_node), current_idx
   | MULT ->
-    Mult_Node (left_node, right_node), current_idx
+      Mult_Node (left_node, right_node), current_idx
   | SUB ->
-    Sub_Node (left_node, right_node), current_idx
+      Sub_Node (left_node, right_node), current_idx
+  | DIV ->
+      Div_Node (left_node, right_node), current_idx
   | EQ ->
-    Eq_Node (left_node, right_node), current_idx
+      Eq_Node (left_node, right_node), current_idx
   | NEQ ->
-    Not_Eq_Node (left_node, right_node), current_idx
+      Not_Eq_Node (left_node, right_node), current_idx
   | GREATER -> 
-    Greater_Node (left_node, right_node), current_idx
+      Greater_Node (left_node, right_node), current_idx
   | GREATEREQ ->
-    Greq_Node (left_node, right_node), current_idx
+      Greq_Node (left_node, right_node), current_idx
   | LESS ->
-    Less_Node (left_node, right_node), current_idx
+      Less_Node (left_node, right_node), current_idx
   | LESSEQ ->
-    Leq_Node (left_node, right_node), current_idx
+      Leq_Node (left_node, right_node), current_idx
   | _ -> let msg = "Unrecognised operator in expression" ^ operator.tliteral in 
-    raise (Error.Parser_Error msg)
+      raise (Error.Parser_Error msg)
 
 
 and collect_parameters input_string idx ~parameter_list:parameter_list : Parse_node.expression_node list * int =
@@ -280,18 +292,18 @@ and collect_parameters input_string idx ~parameter_list:parameter_list : Parse_n
   let open Parse_node in
   match current_token.ttype with
   | OPAR | STRING | INTEGER | FLOAT | NAMESPACE | BOOL | OSQP | TAG ->
-    let p = Variable_Node{namespace = current_token.tliteral; parameters = []} in
-    if current_token.ttype == NAMESPACE then
-      collect_parameters 
-        input_string
-        current_idx
-        ~parameter_list:(p :: parameter_list)
-    else
-      let next_param, next_idx = nud input_string current_token current_idx in
-      collect_parameters
-        input_string
-        next_idx
-        ~parameter_list:(next_param :: parameter_list)
+      let p = Variable_Node{namespace = current_token.tliteral; parameters = []} in
+      if current_token.ttype == NAMESPACE then
+        collect_parameters 
+          input_string
+          current_idx
+          ~parameter_list:(p :: parameter_list)
+      else
+        let next_param, next_idx = nud input_string current_token current_idx in
+        collect_parameters
+          input_string
+          next_idx
+          ~parameter_list:(next_param :: parameter_list)
   | _ -> List.rev parameter_list, idx
 
 

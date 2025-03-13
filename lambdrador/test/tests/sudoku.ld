@@ -1,0 +1,69 @@
+@
+LOOK INTO FIXING SCOPE
+
+CURRENT PLAN IS TO TRY AND 
+SEPERATE THE SCOPE USED WHEN
+SETTING PARAMETERS AND SCOPE PASSED TO
+INTERPRETING EXPRESSION FUNCTION
+@
+
+import "stdlib.ld"
+
+let grid = [
+  [0;2;0;3;4;0;9;0;7];
+  [0;3;9;6;2;0;0;5;0];
+  [5;6;7;0;0;0;2;3;4];
+  [0;4;5;9;0;0;0;0;6];
+  [7;9;3;0;0;0;8;1;5];
+  [6;8;1;0;7;0;0;0;9];
+  [8;0;0;7;5;2;6;0;3];
+  [0;5;2;0;0;6;7;0;0];
+  [9;7;6;4;3;0;5;8;2]
+]
+
+let print_board b = 
+  match b with 
+    case [] then ""
+    case l :: ls then println (foldl (ld acc n = acc + string n) "" l); print_board ls
+  
+
+let get_column board n =
+  map (ld inner_list = nth inner_list n) board
+
+let get_box board col row =
+  let x = (int (col / 3)) * 3;
+  let y = (int (row / 3)) * 3;
+  let rows = slice board x (x+2);
+  flatten (map (ld z = slice (nth rows z) y (y+2)) [0;1;2])
+
+let get_numbers board col row =
+  let col_list = get_column board row;
+  let row_list = nth board col; 
+  let box_list = get_box board col row;
+  let present_numbers =
+    filter (ld n = n != 0) (foldl (ld acc list = concat acc list) [] [col_list; row_list; box_list]);
+  let possible_numbers = filter (ld n = not (mem present_numbers n)) [1;2;3;4;5;6;7;8;9];
+  dedup (possible_numbers)
+
+let solve b =
+  let aux board c r =
+    match [c; r] with 
+      case [8; 9] then board
+      case [_; 9] then aux board (c+1) 0
+      case [_; _] when (nth (nth board c) r) != 0 then aux board c (r+1)
+      case [_; _] then 
+        let numbers = get_numbers board c r;
+        let find_solved_board nums =
+          match nums with
+            case [] then []
+            case n :: ns then
+              let new_board = alter_2d board c r n;
+              let result = aux new_board c r;
+              match result with
+                case [] then find_solved_board ns
+                case _ then result;
+        find_solved_board numbers;
+  aux b 0 0
+
+println print_board grid
+print print_board (solve grid)

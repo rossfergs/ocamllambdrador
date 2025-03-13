@@ -1,4 +1,5 @@
 type token_type =
+  | IMPORT
   | LD
   | TAG
   | WHEN
@@ -21,6 +22,7 @@ type token_type =
   | ADD
   | MULT
   | SUB
+  | DIV
   | EQ
   | DELIM
   | EOF

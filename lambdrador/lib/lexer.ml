@@ -41,7 +41,7 @@ let rec collect input_string idx token_type char_check end_char ~literal:literal
 let collect_operator input_string idx : (Token.token * int) =
   let open Token in
   let check_char = function
-    | '+' | '-' | '=' | '<' | '>' | '*' | '/' | ':' -> true
+    | '+' | '-' | '=' | '<' | '>' | '*' | '/' | ':' | '!' -> true
     | _ -> false
   in
   let check_end ch = not (check_char ch)
@@ -55,25 +55,26 @@ let collect_operator input_string idx : (Token.token * int) =
     ~literal: ""
   in
   let token_class = match tok.tliteral with
-    | "=" -> EQ
-    | "*" -> MULT
-    | "-" -> SUB
-    | "+" -> ADD
-    | "<" -> LESS
-    | "<=" -> LESSEQ
-    | ">" -> GREATER
-    | ">=" -> GREATEREQ
-    | "!=" -> NEQ
-    | "::" -> CONS
-    | _ -> raise (Error.Lexer_Error ("Unrecognised operator " ^ tok.tliteral))
+  | "/" -> DIV
+  | "=" -> EQ
+  | "*" -> MULT
+  | "-" -> SUB
+  | "+" -> ADD
+  | "<" -> LESS
+  | "<=" -> LESSEQ
+  | ">" -> GREATER
+  | ">=" -> GREATEREQ
+  | "!=" -> NEQ
+  | "::" -> CONS
+  | _ -> raise (Error.Lexer_Error ("Unrecognised operator '" ^ tok.tliteral ^ "'"))
   in
   {tliteral = tok.tliteral; ttype = token_class}, next_idx
-  
+
 
 let collect_number input_string idx : (Token.token * int) =
   let open Token in
   let check_end = function
-    | ' ' | ']' | ')' | ';' | '+' | '=' | '*' | '-' | ',' | '\n' -> true
+    | ' ' | ']' | ')' | ';' | '/' | '+' | '=' | '*' | '-' | ',' | '\n' -> true
     | _ -> false in
   let t, i = collect 
     input_string
@@ -131,6 +132,7 @@ let collect_keyword_or_namespace input_string idx : (Token.token * int) =
   | "match" -> {tliteral = result.tliteral; ttype = Token.MATCH}, next_idx
   | "case" -> {tliteral = result.tliteral; ttype = Token.CASE}, next_idx
   | "when" -> {tliteral = result.tliteral; ttype = Token.WHEN}, next_idx
+  | "import" -> {tliteral = result.tliteral; ttype = Token.IMPORT}, next_idx
   | "with" -> {tliteral = result.tliteral; ttype = Token.WITH}, next_idx
   | literal when String.get literal 0 = '`' -> {tliteral = literal; ttype = TAG}, next_idx
   | _ -> result, next_idx
@@ -154,7 +156,7 @@ let rec lex input_string idx: (Token.token * int) =
   | 'a' .. 'z' | 'A' .. 'Z' | '_' | '`' -> collect_keyword_or_namespace input_string next_idx
   | '(' -> ({tliteral = str_ch; ttype = OPAR}, next_idx + 1)
   | ')' -> ({tliteral = str_ch; ttype = CPAR}, next_idx + 1)
-  | '*' | '+' | '-' | '=' | '<' | '!' | '>' | ':' -> collect_operator input_string next_idx
+  | '/' | '*' | '+' | '-' | '=' | '<' | '!' | '>' | ':' -> collect_operator input_string next_idx
   | ';' -> ({tliteral = str_ch; ttype = DELIM}, next_idx + 1)
   | '[' -> ({tliteral = str_ch; ttype = OSQP}, next_idx + 1)
   | ']' -> ({tliteral = str_ch; ttype = CSQP}, next_idx + 1)

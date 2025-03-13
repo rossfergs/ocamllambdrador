@@ -8,24 +8,12 @@ let to_list_tuple s =
   let sl = ref [] in
   let el = ref [] in
   String_map.iter (fun s e -> sl := s :: !sl; el := e :: !el; ()) s;
-  (!sl,!el)
+  (List.rev !sl,List.rev !el)
 
 
 let rec print_scope scope = 
   let open Parse_node in
-  let rec print_block = function
-    | Block_Node {statements = s :: ss; expression; parameters; _} -> 
-        (match s with
-        | Let_Node _ -> print_endline "let"
-        | Print_Node _ | Println_Node _ -> print_endline "print"
-        | Expr _ -> print_endline "end expression");
-        print_block (Block_Node {statements = ss; expression; parameters; closure_scope = None})
-    | Block_Node {statements = []; parameters; _} ->
-        print_endline "expression";
-        List.iter (fun n -> print_string n; print_string " ") parameters
-    | _ -> print_endline "not a block"
-  in
-  String_map.iter (fun k v -> print_string k; print_endline "->"; print_block v) scope.inner_scope;
+  String_map.iter (fun k v -> print_string k; print_endline "->"; print_endline (string_of_expression v)) scope.inner_scope;
   print_newline ();
   match scope.outer_scope with
     | None -> ()
