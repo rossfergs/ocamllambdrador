@@ -132,6 +132,7 @@ let collect_keyword_or_namespace input_string idx : (Token.token * int) =
   | "match" -> {tliteral = result.tliteral; ttype = Token.MATCH}, next_idx
   | "case" -> {tliteral = result.tliteral; ttype = Token.CASE}, next_idx
   | "when" -> {tliteral = result.tliteral; ttype = Token.WHEN}, next_idx
+  | "rec" -> {tliteral = result.tliteral; ttype = Token.REC}, next_idx
   | "import" -> {tliteral = result.tliteral; ttype = Token.IMPORT}, next_idx
   | "with" -> {tliteral = result.tliteral; ttype = Token.WITH}, next_idx
   | literal when String.get literal 0 = '`' -> {tliteral = literal; ttype = TAG}, next_idx

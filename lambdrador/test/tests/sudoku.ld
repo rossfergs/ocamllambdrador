@@ -1,12 +1,3 @@
-@
-LOOK INTO FIXING SCOPE
-
-CURRENT PLAN IS TO TRY AND 
-SEPERATE THE SCOPE USED WHEN
-SETTING PARAMETERS AND SCOPE PASSED TO
-INTERPRETING EXPRESSION FUNCTION
-@
-
 import "stdlib.ld"
 
 let grid = [
@@ -25,7 +16,6 @@ let print_board b =
   match b with 
     case [] then ""
     case l :: ls then println (foldl (ld acc n = acc + string n) "" l); print_board ls
-  
 
 let get_column board n =
   map (ld inner_list = nth inner_list n) board
@@ -59,9 +49,7 @@ let solve b =
             case n :: ns then
               let new_board = alter_2d board c r n;
               let result = aux new_board c r;
-              match result with
-                case [] then find_solved_board ns
-                case _ then result;
+              if result != [] then result else find_solved_board ns;
         find_solved_board numbers;
   aux b 0 0
 

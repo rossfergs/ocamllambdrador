@@ -152,13 +152,15 @@ and parse_println input_string idx : Parse_node.statement_node * int =
   Println_Node expr, current_idx
 
 and parse_assignment input_string idx : Parse_node.statement_node * int = 
-  let current_token, current_idx = Lexer.lex input_string idx in
+  let rec_tok, rec_idx = Lexer.lex input_string idx in
+  let is_recursive, next_idx = if rec_tok.ttype = Token.REC then true, rec_idx else false, idx in
+  let current_token, current_idx = Lexer.lex input_string next_idx in
   match current_token.ttype with
   | Token.NAMESPACE ->
     let params, params_idx = parse_parameters input_string current_idx ~parameter_list:[] in
     let new_block, block_idx =
       parse_block input_string params_idx ~input_params:params ~statement_list:[] in
-      Let_Node {namespace = current_token.tliteral; block = new_block}, block_idx
+    Let_Node {namespace = current_token.tliteral; block = new_block; recursive = is_recursive}, block_idx
   | _ -> raise (Error.Parser_Error ("invalid namespace after let: " ^ current_token.tliteral))
 
 

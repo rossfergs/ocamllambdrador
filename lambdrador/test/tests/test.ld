@@ -75,6 +75,7 @@ print "functional: "
 let result = 3 = (nth [0; 1;2;3; 4 ;5] 3) println ""
 println result
 let result_list = result :: result_list
+println ""
 
 print "head of [1;2;3]: " println (head [1;2;3])
 print "functional: " 
@@ -103,6 +104,27 @@ print "functional: "
 let result = true = mem [1; 2; 3] 2
 println result
 let result_list = result :: result_list
-
 println ""
+
+let factor f =
+    let x = 1;
+    let multiply n =
+        f * n;
+    multiply
+
+let double = factor 2
+let triple = factor 3
+
+println "testing closures: "
+print " > double function: " print double 10 print ", "
+let result = double 10 = 20
+println result
+let result_list = result :: result_list
+
+print " > triple function: " print triple 10 print ", "
+let result = triple 10 = 30
+println result
+let result_list = result :: result_list
+println ""
+
 print "all functional?: " println check_result_list result_list

@@ -74,7 +74,7 @@ and interpret_statement node scope =
       interpret_print e scope;
       print_newline ();
       scope
-  | Let_Node { namespace = name; block = block} -> 
+  | Let_Node { namespace; block; _} -> 
       (*  FIXME: let x = x - 1; currently breaks the scope, investigate *)
       let new_block =
       (match block with
@@ -85,7 +85,26 @@ and interpret_statement node scope =
           )
       | _ -> block
       ) in
-      Scope.bind (String_map.add name new_block scope.inner_scope) scope
+      (*
+      let end_block = 
+      (match recursive with
+      | false -> new_block
+      | true -> 
+          (match new_block with
+          | Block_Node {statements; expression; parameters; closure_scope} ->
+              let new_closure = 
+                (match closure_scope with
+                | None -> Some (to_list_tuple scope.inner_scope)
+                | Some (sl, el) ->
+                    let strings, expressions = (to_list_tuple scope.inner_scope) in
+                    Some (List.concat [sl; strings], List.concat [el; expressions])
+                ) in
+              Block_Node {statements; expression; parameters; closure_scope = new_closure}
+          | _ -> raise (Error.Interpreter_Error "error in assignment. not your fault")
+          )
+      )
+      *)
+      Scope.bind (String_map.add namespace new_block scope.inner_scope) scope
   | Expr e -> interpret_print e scope; scope
 
 

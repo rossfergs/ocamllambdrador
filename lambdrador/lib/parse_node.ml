@@ -53,7 +53,8 @@ and statement_node =
   | Import_Node of string
   | Let_Node of {
       namespace: string;
-      block: expression_node
+      block: expression_node;
+      recursive: bool
   }
   | Print_Node of expression_node
   | Println_Node of expression_node
@@ -145,7 +146,7 @@ and string_of_list = function
 
 and string_of_statement = function
   | Import_Node name -> "Import(" ^ name ^ ")"
-  | Let_Node { namespace; block } -> "Let(" ^ namespace ^ " = " ^ string_of_expression block ^ ")"
+  | Let_Node { namespace; block; _ } -> "Let(" ^ namespace ^ " = " ^ string_of_expression block ^ ")"
   | Print_Node expr -> "Print(" ^ string_of_expression expr ^ ")"
   | Println_Node expr -> "Println(" ^ string_of_expression expr ^ ")"
   | Expr expr -> string_of_expression expr

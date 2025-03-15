@@ -1,4 +1,5 @@
 type token_type =
+  | REC
   | IMPORT
   | LD
   | TAG

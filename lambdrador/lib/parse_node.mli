@@ -51,7 +51,7 @@ and list_node =
 
 and statement_node =
   | Import_Node of string
-  | Let_Node of { namespace : string; block : expression_node; }
+  | Let_Node of { namespace : string; block : expression_node; recursive: bool }
   | Print_Node of expression_node
   | Println_Node of expression_node
   | Expr of expression_node
