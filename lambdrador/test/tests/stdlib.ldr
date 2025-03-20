@@ -166,8 +166,26 @@ let alter_2d list x y value =
     match l with
       case [] then rev acc
       case [i; inner_list] :: rem when i = x then
-        aux ((alter inner_list y value) :: acc) rem
-      case [i; x :: xs] :: rem then aux ((x :: xs) :: acc) rem;
+        let altered = (alter inner_list y value);
+        aux (altered :: acc) rem
+      case [i; inner_list] :: rem then aux (inner_list :: acc) rem;
   let el = (enumerate list);
   aux [] el
 
+let all list =
+  let aux l =
+    match l with
+      case false :: _ then false
+      case true :: bs then aux bs
+      case [] then true
+      case _ then println "non-bool value in all"; false;
+  aux list
+
+let any list =
+  let aux l =
+    match l with
+      case false :: bs then aux bs
+      case true :: _ then true
+      case [] then false
+      case thing then println "non-bool list value in any"; false;
+  aux list

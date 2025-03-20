@@ -1,0 +1,79 @@
+import "stdlib.ldr"
+
+let grid = [
+  [`None; `None; `None];
+  [`None; `None; `None];
+  [`None; `None; `None];
+]
+
+let is_full board =
+  let is_empty tile =
+    match tile with
+      case `None then true
+      case _ then false;
+  not (any (map is_empty (flatten board)))
+
+let invert board = 
+  match board with
+    case [[a; b; c]; [d; e; f]; [g; h; i]] then [[a; d; g]; [b; e; h]; [c; f; i]]
+    case _ then print "NOT A VALID BOARD"; []
+
+let check_rows board player =
+  let is_player_tile tile =
+    match tile with
+      case `None then false
+      case p when p = player then true
+      case _ then false;
+  any (map (ld r = let bools = (map is_player_tile r); all bools) board)
+
+let check_cols board player = 
+  let transposed = invert board;
+  check_rows transposed player
+
+let check_diagonals board player =
+  let down = map (ld i = nth (nth board i) i) [0;1;2];
+  let up = [nth (nth board 2) 0; nth (nth board 1) 1; nth (nth board 0) 2];
+  let diagonals = [down; up];
+  check_rows diagonals player
+
+let is_winner board player =
+  let row_win = check_rows board player;
+  let col_win = check_cols board player;
+  let diagonal_win = check_diagonals board player;
+  any [row_win; col_win; diagonal_win]
+
+let print_board board = 
+  let tile_to_string tile =
+    match tile with
+      case `None then " "
+      case p then p;
+  let aux b =
+    match b with
+      case [] then ""
+      case [i; l] :: ls then println (foldl (ld acc n = acc + tile_to_string n) (string (3-i)) l); aux ls;
+  print aux (enumerate board);
+  println " 123";
+  ""
+
+let play_game board player =
+  print print_board board;
+  if is_full board then "DRAW" else
+  print "x: "; let y = (int (get_input))-1;
+  print "y: "; let x = 2 - ((int (get_input))-1);
+  if not (mem y [0;1;2]) then println "invalid coordinate"; play_game board player else
+  if not (mem x [0;1;2]) then println "invalid coordinate"; play_game board player else
+  println "";
+  if nth (nth board x) y != `None then println "piece present"; play_game board player
+  else
+    let new_board = alter_2d board x y player;
+    let winner = (is_winner new_board player);
+    match winner with
+      case true then
+        print print_board new_board;
+        "PLAYER " + player + " WINS!"
+      case false then 
+        let next_player = if player = "x" then "o" else "x";
+        play_game new_board next_player
+
+println play_game grid "x"
+

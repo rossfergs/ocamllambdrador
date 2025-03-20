@@ -243,10 +243,10 @@ and nud input_string input_token start_idx : (Parse_node.expression_node * int) 
       else
         paren_result, next_idx
   | TAG ->
-      let next_token, _ = Lexer.lex input_string start_idx in
+      let next_token, next_idx = Lexer.lex input_string start_idx in
       (match next_token.ttype with
       | OPAR | OSQP | STRING | FLOAT | INTEGER | IF | MATCH | NAMESPACE | BOOL ->
-          let tagged_data, tag_idx = pratt_parse input_string 0 start_idx in
+          let tagged_data, tag_idx = nud input_string next_token next_idx in
           Tagged_Node {tag = input_token.tliteral; data = Some tagged_data}, tag_idx
       | _ -> Tagged_Node {tag = input_token.tliteral; data = None}, start_idx
       )

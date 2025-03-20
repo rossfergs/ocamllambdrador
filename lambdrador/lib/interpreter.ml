@@ -255,17 +255,27 @@ and interpret_equals left_node right_node scope =
   let open Parse_node in
   let left_eval = interpret_expression left_node scope in
   let right_eval = interpret_expression right_node scope in
-  match get_binary_result_type left_eval right_eval with
+  match left_eval, right_eval with
   | Bool_Node l, Bool_Node r ->
       Bool_Node (l = r)
   | Integer_Node l, Integer_Node r ->
       Bool_Node (l = r)
   | Float_Node l, Float_Node r ->
       Bool_Node (l = r)
+  | Integer_Node l, Float_Node r  ->
+      Bool_Node ((float_of_int l) = r)
+  | Float_Node l, Integer_Node r ->
+      Bool_Node (l = (float_of_int r))
   | String_Node l, String_Node r ->
       Bool_Node (String.equal l r)
   | List_Node l, List_Node r -> Bool_Node (is_list_equal l r scope)
-  | _ -> raise (Error.Interpreter_Error "Invalid types for equals")
+  | Tagged_Node {tag=left_tag; data=left_expr}, Tagged_Node {tag=right_tag; data=right_expr} -> 
+      if not (String.equal left_tag right_tag) then Bool_Node false else
+      (match left_expr, right_expr with
+      | None, None -> Bool_Node true
+      | Some le, Some re -> Bool_Node ((interpret_expression le scope) = (interpret_expression re scope))
+      | _ -> Bool_Node false)
+  | _ -> Bool_Node false
 
 
 and interpret_not_equals left_node right_node scope =
