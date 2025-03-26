@@ -13,7 +13,7 @@ let get_type = let open Parse_node in function
 | Bool_Node _ -> "Bool"
 | Tagged_Node {tag; _} -> tag
 | List_Node _ -> "list"
-| n -> raise (Error.Interpreter_Error ("Invalid expression type" ^ string_of_expression n))
+| _ -> raise (Error.Interpreter_Error ("Invalid expression type"))
 
 
 let _get_list_length = let open Parse_node in function

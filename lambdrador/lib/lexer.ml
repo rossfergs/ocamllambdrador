@@ -109,7 +109,7 @@ let collect_keyword_or_namespace input_string idx : (Token.token * int) =
     | _ -> false 
   in
   let check_end = function
-    | ' ' | '\n' | ')' | ';' | '+' | '=' | '*' | '-' | '[' | ']' -> true
+    | ' ' | '\n' | ')' | '/' | ';' | '+' | '=' | '*' | '-' | '[' | ']' -> true
     | _ -> false 
   in
   let result, next_idx = collect

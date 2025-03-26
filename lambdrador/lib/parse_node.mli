@@ -62,5 +62,3 @@ val to_int_node : expression_node -> expression_node
 val to_float_node : expression_node -> expression_node
 val to_string_node : expression_node -> expression_node
 val print_node : expression_node -> unit
-val string_of_expression : expression_node -> string
-val string_of_statement : statement_node -> string

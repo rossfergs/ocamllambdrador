@@ -1,4 +1,4 @@
-import "stdlib.ld"
+import "stdlib.ldr"
 
 let grid = [
   [0;2;0;3;4;0;9;0;7];

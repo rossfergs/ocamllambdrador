@@ -1,6 +1,8 @@
 
 let not b = if b then false else true
 
+let mod a b = a - (b * (int (a/b)))
+
 let rev l =
   let aux acc list =
     match list with

@@ -1,4 +1,4 @@
-import "stdlib.ld"
+import "stdlib.ldr"
 
 let result_list = []
 let check_result_list list =
@@ -126,5 +126,21 @@ let result = triple 10 = 30
 println result
 let result_list = result :: result_list
 println ""
+
+println "modulo function:"
+println "  check if 2 is even" 
+let result = (mod 2 2) = 0
+print "  " println result
+let result_list = result :: result_list
+
+println "  check if 3 is not even" 
+let result = (mod 3 2) != 0
+print "  " println result
+let result_list = result :: result_list
+
+println "  check if 10 is even" 
+let result = (mod 10 2) = 0
+print "  " println result
+let result_list = result :: result_list
 
 print "all functional?: " println check_result_list result_list

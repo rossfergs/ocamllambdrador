@@ -12,8 +12,7 @@ let to_list_tuple s =
 
 
 let rec print_scope scope = 
-  let open Parse_node in
-  String_map.iter (fun k v -> print_string k; print_endline "->"; print_endline (string_of_expression v)) scope.inner_scope;
+  String_map.iter (fun k _ -> print_string k; print_endline "->"; print_endline ("EXPR")) scope.inner_scope;
   print_newline ();
   match scope.outer_scope with
     | None -> ()
