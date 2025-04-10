@@ -140,7 +140,6 @@ and interpret_print node scope =
 
 
 and set_params taken given params =
-  (* print_string "setting param"; print_newline (); *)
   match taken, given with
   | [], [] ->
       params
@@ -174,7 +173,7 @@ and set_params taken given params =
       let open Scope in
       let params_with_closure = match block with
         | Block_Node {closure_scope = Some (sl, el); _} ->
-            set_params sl el params (* Fix: Also bind closure variables *)
+            set_params sl el params
         | _ -> params
       in
       set_params
@@ -184,7 +183,7 @@ and set_params taken given params =
 
 
 (* intepreting a variable node, which is basically a function xd *)
-and interpret_function node scope = 
+and interpret_function node scope =
   (* getting the block assocaited with the function namespace and its parameters *)
   let statements, expression, taken_params, given_params, closure_scope = match node with
   | Parse_node.Variable_Node {namespace; parameters = params} ->

@@ -93,16 +93,6 @@ let church n f v =
       church (n-1) f (f v)
     case _ then v
 
-@
-let flatten list = 
-  let aux acc l = 
-    match l with
-      case (x :: xs) :: r then
-        print (x :: xs);
-        [];
-  aux [] list
-@
-
 let slice list start_idx end_idx =
   let aux acc counter =
     if counter = (end_idx + 1) then rev acc
@@ -173,6 +163,22 @@ let alter_2d list x y value =
       case [i; inner_list] :: rem then aux (inner_list :: acc) rem;
   let el = (enumerate list);
   aux [] el
+
+let new_alter list idx value =
+  let aux acc l i =
+    match [i; l] with
+      case [_; []] then rev acc
+      case [0; _ :: rem] then aux (value :: acc) rem (i-1)
+      case [n; cur :: rem] then aux (cur :: acc) rem (i-1);
+  aux [] list idx
+
+let new_alter_2d list x y value =
+  let aux acc l i =
+    match [i; l] with
+      case [_; []] then rev acc
+      case [0; inner_list :: rem] then aux ((new_alter inner_list y value) :: acc) rem (i-1)
+      case [_; inner_list :: rem] then aux (inner_list :: acc) rem (i-1);
+  aux [] list x
 
 let all list =
   let aux l =

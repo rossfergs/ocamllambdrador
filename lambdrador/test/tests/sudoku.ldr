@@ -72,7 +72,7 @@ let solve b =
           match nums with
             case [] then []
             case n :: ns then
-              let new_board = alter_2d board c r n;
+              let new_board = new_alter_2d board c r n;
               let result = aux new_board c r;
               if result != [] then result else find_solved_board ns;
         find_solved_board numbers;
