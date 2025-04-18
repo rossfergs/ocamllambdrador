@@ -1,0 +1,16 @@
+# dune build -p lambdrador @install
+# OCAMLPARAM: unset
+# Shared cache: enabled-except-user-rules
+# Shared cache location: /Users/rmf/.cache/dune/db
+# Workspace root:
+# /Users/rmf/Documents/projects/ocaml/ocamllambdrador/lambdrador/test/tests
+# Auto-detected concurrency: 11
+# Dune context:
+#  { name = "default"
+#  ; kind = "default"
+#  ; profile = Release
+#  ; merlin = true
+#  ; fdo_target_exe = None
+#  ; build_dir = In_build_dir "default"
+#  ; instrument_with = []
+#  }

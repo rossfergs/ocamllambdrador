@@ -1,0 +1,3 @@
+let rec n inc = print n; if n < 10 then rec (n + inc) inc else 0
+print (rec 0 1)
+

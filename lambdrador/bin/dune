@@ -1,0 +1,6 @@
+
+(executable
+ (public_name lambdrador)
+ (name main)
+ (modules main)
+ (libraries lambdrador))

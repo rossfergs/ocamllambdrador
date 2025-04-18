@@ -1,0 +1,6 @@
+(library 
+ (name lambdrador)
+ (public_name lambdrador)
+ (modules util token error lexer parse_node pratt_parser parser scope interpreter)
+ (libraries unix ppx_deriving.std)
+ (preprocess (pps ppx_deriving.show)))

@@ -1,0 +1,52 @@
+PROGRAM
+    := STATEMENT PROGRAM | EOF
+
+BLOCK
+    := STATEMENT; BLOCK | EXPRESSION
+
+STATEMENT
+    := print EXPRESSION;
+    := let namespace PARAMETERS = BLOCK;
+    := EXPRESSION
+
+PARAMETERS
+    := namespace PARAMETERS | None
+
+CASES
+    := case EXPRESSION then BLOCK CASES
+    := case EXPRESSION when EXPRESSION then BLOCK CASES
+    := None
+
+EXPRESSION
+    := namespace ARGUMENTS
+    := TERM OPERATOR EXPRESSION
+    := match EXPRESSION with CASES
+    := TERM
+    := ( EXPRESSION )
+
+ARGUMENTS
+    := EXPRESSION ARGUMENTS
+    := None
+
+TERM
+    := STRING
+    := NUMBER
+    := BOOL
+
+BOOL
+    := true
+    := false
+
+NUMBER
+    := DIGIT NUMBER
+    := DIGIT
+
+DIGIT
+    := 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+
+STRING
+    := CHARACTER STRING
+    := CHARACTER
+
+CHARACTER
+    := [Any Character]
