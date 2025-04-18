@@ -1,0 +1,10 @@
+(lang dune 3.0)
+
+(context
+ (default
+  (profile release)))
+
+(env
+ (release
+  (ocamlopt_flags (:standard -O3 -unbox-closures -inline-max-depth 10))
+  (ocamlc_flags (:standard))))

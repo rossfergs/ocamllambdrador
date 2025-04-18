@@ -65,6 +65,24 @@ in the example above a function named foo is defined with 2 input parameters, a 
 
 when a variable is defined its value is evaluated immediately, this includes interpreting all the statements within.
 
+### Lists
+
+Expressions can be collected into lists, using the syntax below
+
+```
+[1; 2; 3]
+```
+
+These lists are singly linked, meaning that the list of '[1; 2; 3]' is a list of 1 -> 2 -> 3 -> [].
+
+You can add a new element to the start of a list using the cons operator, ::
+
+```
+1 :: [2; 3]
+```
+
+This operation evaluates to [1; 2; 3]
+
 ### Advanced Functions
 
 #### Functions as input
@@ -114,23 +132,6 @@ The example using filter can be rewritten as such:
 filter (ld n = n > 3) [1; 2; 3; 4; 5]
 ```
 
-### Lists
-
-Expressions can be collected into lists, using the syntax below
-
-```
-[1; 2; 3]
-```
-
-These lists are singly linked, meaning that the list of '[1; 2; 3]' is a list of 1 -> 2 -> 3 -> [].
-
-You can add a new element to the start of a list using the cons operator, ::
-
-```
-1 :: [2; 3]
-```
-
-This operation evaluates to [1; 2; 3]
 
 ### Conditional Expressions
 

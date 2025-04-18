@@ -109,7 +109,7 @@ let collect_keyword_or_namespace input_string idx : (Token.token * int) =
     | _ -> false 
   in
   let check_end = function
-    | ' ' | '\n' | ')' | '/' | ';' | '+' | '=' | '*' | '-' | '[' | ']' -> true
+    | ' ' | '\n' | ')' | '/' | ';' | '+' | '=' | '*' | '-' | '[' | ']' | '(' -> true
     | _ -> false 
   in
   let result, next_idx = collect
@@ -142,8 +142,7 @@ let collect_keyword_or_namespace input_string idx : (Token.token * int) =
   lexer function, takes in the input code as a string and an integer to
   get the token from, outputs the token and the next index to search from
 *)
-let rec lex input_string idx: (Token.token * int) =
-  let open Token in
+let rec lex input_string idx: (Token.token * int) = let open Token in
   let next_idx = skip_whitespace input_string idx in
   if next_idx >= String.length input_string 
     then {tliteral = "EOF"; ttype = EOF},(String.length input_string)-1 

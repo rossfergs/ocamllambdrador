@@ -1,6 +1,6 @@
 
 (*
-  imperative file reading solution, excluding new_lines
+  imperative file reading solution
   found from stack overflow by user gascha in this answer:
   https://stackoverflow.com/a/15848796
 *)

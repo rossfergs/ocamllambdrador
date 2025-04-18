@@ -75,7 +75,6 @@ and interpret_statement node scope =
       print_newline ();
       scope
   | Let_Node { namespace; block; _} -> 
-      (*  FIXME: let x = x - 1; currently breaks the scope, investigate *)
       let new_block =
       (match block with
       | Block_Node {statements; expression; parameters = []; closure_scope} ->
@@ -229,7 +228,7 @@ and interpret_block statements expr scope =
   in
   let new_scope = interpret_block_impl statements scope in
   match expr with
-  | Variable_Node {namespace; parameters} when parameters = [] ->
+  | Variable_Node {namespace; parameters} when parameters = [] && not (List.mem namespace ["get_input"; "int"; "float"; "string"]) ->
       (match Scope.get namespace new_scope with
       | Block_Node {statements; expression; parameters; _} when parameters != [] ->
           let closure_scope = Scope.to_list_tuple new_scope.inner_scope in
@@ -384,6 +383,7 @@ and interpret_cons left right scope =
   | _ -> raise (Error.Interpreter_Error "right side of cons must be a list")
 
 
+(* TODO: TAGGED NODES *)
 and match_cons list left right cons_scope =
   let open Parse_node in
   match left with
@@ -482,7 +482,7 @@ and match_cons list left right cons_scope =
       | _ -> None
       )
 
-
+(* TODO: TAGGED NODES *)
 and match_list pattern_list expr_list list_scope =
   let open Parse_node in
   match pattern_list, expr_list with

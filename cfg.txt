@@ -1,9 +1,8 @@
-
 PROGRAM
     := STATEMENT PROGRAM | EOF
 
 BLOCK
-    := STATEMENT BLOCK | EXPRESSION
+    := STATEMENT; BLOCK | EXPRESSION
 
 STATEMENT
     := print EXPRESSION;
@@ -13,18 +12,30 @@ STATEMENT
 PARAMETERS
     := namespace PARAMETERS | None
 
+CASES
+    := case EXPRESSION then BLOCK CASES
+    := case EXPRESSION when EXPRESSION then BLOCK CASES
+    := None
+
 EXPRESSION
     := namespace ARGUMENTS
     := TERM OPERATOR EXPRESSION
+    := match EXPRESSION with CASES
     := TERM
     := ( EXPRESSION )
 
 ARGUMENTS
-    := EXPRESSION ARGUMENTS | None
+    := EXPRESSION ARGUMENTS
+    := None
 
 TERM
     := STRING
     := NUMBER
+    := BOOL
+
+BOOL
+    := true
+    := false
 
 NUMBER
     := DIGIT NUMBER

@@ -58,10 +58,12 @@ let print_board board =
 let play_game board player =
   print print_board board;
   if is_full board then "DRAW" else
-  print "x: "; let y = (int (get_input))-1;
-  print "y: "; let x = 2 - ((int (get_input))-1);
-  if not (mem [0;1;2] y) then println "invalid coordinate"; play_game board player else
-  if not (mem [0;1;2] x) then println "invalid coordinate"; play_game board player else
+  print "x: "; let y = get_input;
+  print "y: "; let x = get_input;
+  if not (mem ["3";"1";"2"] y) then println "invalid coordinate"; play_game board player else
+  if not (mem ["3";"1";"2"] x) then println "invalid coordinate"; play_game board player else
+  let y = int(y)-1;
+  let x = 2 - ((int (x))-1);
   println "";
   if nth (nth board x) y != `None then println "piece present"; play_game board player
   else

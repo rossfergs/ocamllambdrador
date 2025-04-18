@@ -1,3 +1,8 @@
+
+(* 
+  FILE NO LONGER USED
+  THE CURRENT PRATT PARSER CAN BE FOUND IN THE MAIN PARSER FILE
+*)
 let parse_expression input_string start_idx = 
 
   let get_lbp input_token =
