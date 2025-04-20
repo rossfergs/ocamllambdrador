@@ -21,9 +21,9 @@ lambdrador files do not need to have any file extension to be interpreted (i've 
 
 ### Basic Expressions
 
-Arithmatic expression can be completed through the +, -, * and / operators, representing addition, subtraction, multiplication and division respectively. 
+Arithmetic expression can be completed through the +, -, * and / operators, representing addition, subtraction, multiplication and division respectively. 
 
-If in the repl mode, you can type an expression like '2 + 2', and you can see the evaluated result below.
+If in the REPL mode, you can type an expression like '2 + 2', and you can see the evaluated result below.
 
 ### Statements
 
@@ -87,7 +87,7 @@ This operation evaluates to [1; 2; 3]
 
 #### Functions as input
 
-Functions are 'first-class' citizens within lamdrador, meaning they can be treated like any other value
+Functions are 'first-class' citizens within lambdrador, meaning they can be treated like any other value
 
 Functions like 'filter' and 'map' make use of functions as inputs, as shown below
 
@@ -143,7 +143,7 @@ filter (ld n = n > 3) [1; 2; 3; 4; 5]
 if x = 1 then "x is one" else "x is not one"
 ```
 
-the expression will return the string "x is one" if x is one, and "x is not one" is not one. These if statements can be used to influence the output of functions, and as such can allow for recursive functions
+the expression will return the string "x is one" if x is one, and "x is not one" if not one. These if statements can be used to influence the output of functions, and as such can allow for recursive functions
 
 ```
 let factorial n = if n <= 1 then 1 else n * factorial (n-1)
@@ -187,7 +187,6 @@ is [1;2;3] is matched against a the entire list would be assigned to variable a.
 ### Conclusion
 
 That concludes the user guide. Below is a copy of the stdlib for reference.
-
 
 stdlib.ldr
 ```
