@@ -1,0 +1,16 @@
+
+Process: ocaml native
+maximum memory usage: 11.75MB
+average memory usage: 11.65MB
+time taken: 31.478s
+
+Process: ocaml bytecode
+maximum memory usage: 12.75MB
+average memory usage: 12.13MB
+time taken: 198.843s
+
+Process: python bytecode
+maximum memory usage: 22.16MB
+average memory usage: 19.05MB
+time taken: 3876.868s
+

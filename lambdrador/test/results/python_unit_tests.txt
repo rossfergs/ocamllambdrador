@@ -1,0 +1,46 @@
+
+reversing a list of [1; 2; 3]: [3; 2; 1]
+functional: True
+
+concatenating [1; 2; 3] and [4; 5; 6]: [1; 2; 3; 4; 5; 6]
+functional: True
+
+flattening a tree of `Branch [ `Branch [ `Leaf 1; `Leaf 2]; `Leaf 3]: [1; 2; 3]
+functional: True
+
+filtering [1; 2; 3; 4; 5; 6; 7; 8; 9; 10] to have only numbers under 5: [1; 2; 3; 4]
+functional: True
+
+mapping [1; 2; 3] to multiply each value by 10: [10; 20; 30]
+functional: True
+
+mapping [1; 2; 3] to add one to each value (using anonymous function): [2; 3; 4]
+functional: True
+
+folding left, subtracting a list of [1;2;3] together: -6
+functional: True
+
+folding right, subtracting a list of [1; 2; 3] together: 2
+functional: True
+
+getting the 3rd index of [0;1;2;3;4;5] (expected = 3): 3
+functional: 
+True
+
+head of [1;2;3]: 1
+functional: True
+
+tail of [1;2;3]: [2; 3]
+functional: True
+
+function modelling church numeral style encoding, appling successor function to 0 5 times: 5
+functional: True
+
+mem function, to check if a variable is in a list: True
+functional: True
+
+testing closures: 
+ > double function: 20, True
+ > triple function: 30, True
+
+all functional?: True
