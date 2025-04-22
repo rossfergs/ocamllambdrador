@@ -37,4 +37,3 @@ type token_type =
   | OSQP
   | CSQP
 type token = { tliteral : string; ttype : token_type; }
-val print_token : token -> unit

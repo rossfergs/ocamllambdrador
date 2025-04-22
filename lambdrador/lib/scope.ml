@@ -10,7 +10,6 @@ let to_list_tuple s =
   String_map.iter (fun s e -> sl := s :: !sl; el := e :: !el; ()) s;
   (List.rev !sl,List.rev !el)
 
-
 let rec print_scope scope = 
   String_map.iter (fun k _ -> print_string k; print_endline "->"; print_endline ("EXPR")) scope.inner_scope;
   print_newline ();

@@ -36,11 +36,5 @@ type token_type =
   | NUMBER
   | OSQP
   | CSQP
-[@@deriving show]
 
 type token = {tliteral : string; ttype : token_type}
-
-let print_token t : unit = 
-  let open Format in
-  print_string (t.tliteral ^ "\n");
-  print_endline (show_token_type t.ttype);
