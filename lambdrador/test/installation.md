@@ -1,6 +1,4 @@
-# Lambdrador Documentation Guide
-
-## Installation
+# Lambdrador Installation Guide
 
 These installation guides were written for macOS Sonoma 14.5, using zsh, however should work on Linux too
 
